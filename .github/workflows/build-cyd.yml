@@ -1,22 +1,3 @@
-# CYD (ES3C28P, 320 x 240) firmware build - build only, nothing is flashed.
-#
-# The same tree and the same ESP-IDF as the installer workflow, narrowed to the
-# one board: sdkconfig.defaults then sdkconfig.defaults.cyd (the fragment
-# tools/build_cyd.sh layers on top), in its own build_cyd directory so it can
-# never disturb the other boards' builds. Every .bin the CYD build produces
-# (bootloader, partition table, OTA data, the app) plus flasher_args.json, the
-# offsets to write them at, is uploaded as a workflow artifact:
-#
-#   idf.py -B build_cyd -DSDKCONFIG=build_cyd/sdkconfig \
-#          "-DSDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.defaults.cyd" build
-#
-# The image is signed with firmware/keys/ota_signing_key.pem (sdkconfig.defaults'
-# CONFIG_SECURE_BOOT_SIGNING_KEY, docs/OTA.md): an image put on a tank by cable
-# must carry the same trust root that signs releases, or that tank can never
-# take an update. The secret is used when the repository has it; the public repo
-# has no throwaway fallback (a cable build there must be updatable). Elsewhere a
-# THROWAWAY key is generated so the workflow still compiles - that image runs
-# but can never update itself.
 name: build-cyd
 
 on:
@@ -43,7 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0          # the image's build id is `git describe` (firmware/CMakeLists.txt)
+          fetch-depth: 0
+
       - name: Signing key (the cable build carries the OTA trust root - docs/OTA.md)
         env:
           OTA_SIGNING_KEY: ${{ secrets.OTA_SIGNING_KEY }}
@@ -58,6 +40,7 @@ jobs:
             openssl genrsa -out firmware/keys/ota_signing_key.pem 3072 2> /dev/null
             echo "THROWAWAY signing key (no secret here): this image compiles but can never take an update"
           fi
+
       - name: Build the firmware - the CYD (2.8" ES3C28P, 320 x 240)
         uses: espressif/esp-idf-ci-action@v1
         with:
@@ -65,10 +48,12 @@ jobs:
           target: esp32s3
           path: firmware
           command: idf.py -B build_cyd -DSDKCONFIG=build_cyd/sdkconfig "-DSDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.defaults.cyd" build
+
       - name: List what the build produced
         run: |
           find firmware/build_cyd -name '*.bin' -printf '%10s  %p\n' | sort -k2
           python3 -c "import json; d = json.load(open('firmware/build_cyd/flasher_args.json')); print('\n'.join('%-10s %s' % (k, v) for k, v in sorted(d['flash_files'].items())))"
+
       - uses: actions/upload-artifact@v4
         with:
           name: pocket-tank-cyd-${{ github.sha }}
