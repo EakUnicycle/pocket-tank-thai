@@ -6448,7 +6448,7 @@ static void snail_card_draw(ctx_t *c, const tank_t *t) {
     draw_text(c, X + (W - text_w("หอยทาก", UI_TEXT(3))) / 2, Y + UI(82), UI_TEXT(3), 0xffffff, "หอยทาก");
     const char *cap = "กินตะไคร่ไปแล้ว";
     draw_text(c, X + (W - text_w(cap, UI_TEXT(2))) / 2, Y + UI(112), UI_TEXT(2), 0x9fd8e2, cap);
-    char n[24];
+    char n[32];
     if (t->snail_grazed <= 0) snprintf(n, sizeof n, "ยังไม่มี");
     else snprintf(n, sizeof n, "%d จุด", (int)t->snail_grazed);
     draw_text(c, X + (W - text_w(n, UI_TEXT(3))) / 2, Y + UI(134), UI_TEXT(3), 0xffffff, n);
@@ -6490,7 +6490,7 @@ static void crab_card_draw(ctx_t *c, const tank_t *t) {
     draw_text(c, X + (W - text_w("ปูสตรอว์เบอร์รี", UI_TEXT(3))) / 2, Y + UI(70), UI_TEXT(3), 0xffffff, "ปูสตรอว์เบอร์รี");
     {   /* two counts side by side: the pellets it found, the sand dollars it dug up (0.3.9) - what they paid, not how many finds (0.3.9.1) */
         const int L = X + W / 4, R = X + 3 * W / 4;
-        char n[24];                                   /* (Thai: "ยังไม่มี" is 21 bytes) */
+        char n[32];                                   /* (Thai: "ยังไม่มี" is 24 bytes) */
         draw_text(c, L - text_w("อาหารเม็ด", UI_TEXT(2)) / 2, Y + UI(104), UI_TEXT(2), 0x9fd8e2, "อาหารเม็ด");
         if (t->cr_eaten == 0) snprintf(n, sizeof n, "ยังไม่มี"); else snprintf(n, sizeof n, "%u", (unsigned)t->cr_eaten);
         draw_text(c, L - text_w(n, UI_TEXT(3)) / 2, Y + UI(126), UI_TEXT(3), 0xffffff, n);
@@ -6534,7 +6534,7 @@ static void urchin_card_draw(ctx_t *c, const tank_t *t) {
     draw_text(c, X + (W - text_w("เม่นทะเล", UI_TEXT(3))) / 2, Y + UI(90), UI_TEXT(3), 0xffffff, "เม่นทะเล");
     const char *cap = "กินหญ้าไปแล้ว";
     draw_text(c, X + (W - text_w(cap, UI_TEXT(2))) / 2, Y + UI(118), UI_TEXT(2), 0x9fd8e2, cap);
-    char n[24]; int cm = (int)(t->urchin_grazed_px / PX_PER_CM);
+    char n[40]; int cm = (int)(t->urchin_grazed_px / PX_PER_CM);
     /* ซม under a meter, then ม with one decimal, กม past a kilometer (0.3.9,
        Strato: "1.4K CM is odd"); the longest line, "999.9 ม.", fits the card */
     if (cm < 1) snprintf(n, sizeof n, "ยังไม่มี");
@@ -7372,7 +7372,7 @@ int render_confirm_hit(float x, float y) {
 void render_battery_info(uint16_t *fb, int stride, const bat_info_t *bi, float clock) {
     ctx_t c = ctx_full(fb, stride, 1.0f);
     bool pw = BAT_ON_POWER(bi->state);
-    char lab[3][40], val[3][48], d[16]; int nr = 0;   /* (Thai: three bytes a letter) */
+    char lab[3][64], val[3][48], d[16]; int nr = 0;   /* (Thai: three bytes a letter) */
     if (bi->since_min >= 0) {
         snprintf(lab[nr], sizeof lab[nr], pw ? "เสียบสายอยู่" : "ไม่เสียบสาย");
         if (bi->since_min < 1) snprintf(val[nr], sizeof val[nr], "เมื่อกี้");
@@ -9006,7 +9006,7 @@ static void touch_cross(ctx_t *c, int fx, int fy, uint32_t rgb) {      /* a cros
 }
 void render_touch_cross(uint16_t *fb, int stride, int i, int n, int tx, int ty) {
     ctx_t c = ctx_page(fb, stride);
-    char txt[48];                                 /* (Thai: three bytes a letter) */
+    char txt[64];                                 /* (Thai: three bytes a letter; "แตะกากบาท " 28 + " จาก " 11 + two ints, 62 worst) */
     rect_fill(&c, -PAGE_X, -PAGE_Y, TANK_W, TANK_H, MSP_INK);
     touch_cross(&c, tx, ty, MSP_TEAL);
     snprintf(txt, sizeof txt, "แตะกากบาท %d จาก %d", i + 1, n);
