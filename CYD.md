@@ -490,8 +490,9 @@ The browser installer is for upstream's boards only; the CYD is built and
 flashed from this tree with ESP-IDF 5.5 (`IDF_PATH`, or
 `~/.espressif/esp-idf/v5.5`). `tools/build_cyd.sh` runs on Linux: it
 flashes only through a `/dev/serial/by-id/` path, which other systems do
-not have. Elsewhere, build with the script and no port, then run its last
-`idf.py` line by hand with your own port.
+not have (Windows has `COM<n>`). Elsewhere, build with the script and no
+port, then run its flashing steps by hand with your own port - the
+commands are in *Flashing on Windows* below.
 
 **Find the port.** With the board plugged in, `ls /dev/serial/by-id/`
 lists it as
@@ -514,6 +515,20 @@ tools/build_cyd.sh                                     # build only
 tools/build_cyd.sh <port> --model                      # the first time: the app and the 8 MB model partition
 tools/build_cyd.sh <port>                              # after that: the app
 ```
+
+`--model` writes the model's body, 7,557,640 bytes, at `0x290000`, and
+stops there: it does not write the trailer the model partition's last sector
+holds (`0xA8F000`). The board copes - it hashes the body on the first boot
+and writes the trailer itself (*The model partition, and AI MODEL
+DAMAGED*) - but that hashing costs a moment of the first boot every time
+the model is written without it. Two commands save it:
+
+```sh
+python ../tools/model_trailer.py --check --build-dir build_cyd
+python -m esptool --chip esp32s3 -p <port> -b 921600 write_flash 0xA8F000 build_cyd/model_trailer.bin
+```
+
+Both run from `firmware/`, on the first flash and after any `erase_flash`.
 
 The first boot after the first flash opens the first-run setup, the
 welcome and the names for the two fry, as README.md's
@@ -557,6 +572,139 @@ first 64 KB (the NVS rescue copy, `nvs_start` in `main.c`): 120 slots of
 but the firmware; whatever an earlier image left there (the vendor's demo)
 fails the slots' checks and reads as empty places, and a slot is erased
 before it is written.
+
+### Flashing on Windows
+
+Windows has no `/dev/serial/by-id/`, so `tools/build_cyd.sh` cannot flash
+there: it refuses a `COM<n>` (`give the by-id path, not COM3`). Build with
+it and no port, then write the parts yourself. The port is `COM3` below
+(Device Manager, *Ports (COM & LPT)*: "USB Serial Device" or "USB JTAG/serial
+debug unit"); `<build>` is `firmware/build_cyd`.
+
+The offsets, as `firmware/build_cyd/flasher_args.json` lists them; the
+paths are from `firmware/`:
+
+| what | offset | file |
+|---|---|---|
+| bootloader | `0x0` | `build_cyd/bootloader/bootloader.bin` |
+| partition table | `0x8000` | `build_cyd/partition_table/partition-table.bin` |
+| the app (`ota_0`) | `0x10000` | `build_cyd/pocket_tank.bin` |
+| the model body | `0x290000` | `../model/out/model_q4.bin` |
+| the model trailer | `0xA8F000` | `build_cyd/model_trailer.bin` (see below) |
+| otadata | `0xA90000` | `build_cyd/ota_data_initial.bin` |
+
+The app's own `idf.py flash` writes the first three and otadata in one
+go. From `firmware/`, in a shell with ESP-IDF's `export.bat`/`export.ps1`
+sourced:
+
+```sh
+idf.py -B build_cyd -D SDKCONFIG="build_cyd/sdkconfig" \
+       -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.cyd" \
+       -p COM3 -b 921600 flash
+```
+
+That leaves the model alone, as an update should. For a board that has
+never had one, write the model body, build the trailer and write it too,
+from `firmware/` - the model goes down first, its trailer last, so a
+half-written body is never taken for a good model (*The model partition,
+and AI MODEL DAMAGED*):
+
+```sh
+python -m esptool --chip esp32s3 -p COM3 -b 921600 write_flash 0x290000 ../model/out/model_q4.bin
+python ../tools/model_trailer.py --check --build-dir build_cyd
+python -m esptool --chip esp32s3 -p COM3 -b 921600 write_flash 0xA8F000 build_cyd/model_trailer.bin
+```
+
+`--check` compares `model/out/model_q4.bin` with `common/version.h`
+(`PT_MODEL_LEN`, `PT_MODEL_SHA256`) and stops if they disagree; it also
+writes `build_cyd/model_trailer.bin`, 4 KB, the model's last sector.
+
+**Verify a model write** rather than trusting the log; a wrong offset or
+a truncated file is exactly what the trailer then reports:
+
+```sh
+python -m esptool --chip esp32s3 -p COM3 -b 921600 verify_flash 0x290000 ../model/out/model_q4.bin
+python -m esptool --chip esp32s3 -p COM3 -b 921600 read_flash 0xA8F000 0x1000 model_trailer_read.bin
+```
+
+**With ESPTool JS** (Espressif's browser flasher, no Python and no
+ESP-IDF: `espressif.github.io/esptool-js`, a Chrome or Edge tab over
+Web Serial), pick `ESP32-S3` and 921600 baud, then add the parts with the
+same offsets: `0x0` bootloader, `0x8000` partition table, `0x10000` the
+app, `0x290000` `model_q4.bin`, `0xA8F000` `model_trailer.bin`, and
+`0xA90000` otadata if the board is new or is to pick its slot again. The
+files are the ones listed above; `model_trailer.bin` still has to be made
+first, with the `model_trailer.py` line, since the browser cannot compute
+it. Then CONNECT, FLASH, and RESET the board. Two things the browser
+cannot do for you: keep a backup of the factory image (the browser is a
+flasher; take the 16 MB copy with `esptool` first) and verify a write - the
+`verify_flash` above has no button, so a wrong file is found at the boot,
+in the log, instead.
+
+### The model partition, and AI MODEL DAMAGED
+
+The model is `model/out/model_q4.bin` (`model/out/` holds it and its
+tokenizer; the tokenizer is built into the app, from `EMBED_FILES` in
+`firmware/main/CMakeLists.txt`, so it is never flashed). Its 8 MB
+partition starts at `0x290000`; the body is 7,557,640 bytes (`0x735208`),
+ending at `0x9C5208`, and the table's last sector, `0xA8F000` to
+`0xA90000`, holds the trailer `firmware/main/model_trailer.c` reads. The
+trailer records the model's tag, length and SHA-256 (`PT_MODEL_TAG`
+`v3m`, `PT_MODEL_LEN`, `PT_MODEL_SHA256` in `common/version.h`), checksummed
+with a CRC, so the boot knows the body without hashing 7.5 MB. The firmware
+also carries the SHA-256 of every model the tree has shipped, its launch
+image included, so an older body is not "damaged".
+
+The boot says which of four things it found:
+
+- `trailer: model v3m, 7557640 bytes - good` - the trailer is there and
+  its CRC holds.
+- `no trailer: hashed the body (7557640 bytes) in <N> ms` then `the body
+  is v3m: trailer written` - the trailer sector was blank or unreadable and
+  the body is this build's model: the firmware writes the trailer itself,
+  and the next boot takes the first line above.
+- `the body is an older model we shipped: it runs` - a model from an
+  earlier release, no trailer to write: it runs as it is.
+- `the body is no model we ever shipped: damaged (the keeper is told)` -
+  and the glass shows **AI MODEL DAMAGED** instead of the tank.
+
+The card means the model region holds something this build did not
+ship: a model written at the wrong offset, a body cut short by a broken
+write or a flat cable, a body from another tree with no trailer, or a
+board erased (`erase_flash`) and given only the app back. The notice
+stays - it is drawn at every boot, on the tank, until the region is
+written correctly again. There is no way past it on the glass.
+
+To clear it: write `model/out/model_q4.bin` from a tree whose
+`common/version.h` produced that `model/out/`, at `0x290000`, then build
+and write the trailer with the same tree, `--check` refusing a mismatch.
+An app-only flash cannot clear it, and erasing the board makes it worse:
+`erase_flash` takes the model with it.
+
+### Building in CI, without a board
+
+`.github/workflows/build-cyd.yml` builds the same image on GitHub's
+runners and flashes nothing: on every push to `main` that touches
+`firmware/`, `common/`, `model/out/`, `tools/build_cyd.sh` or the
+workflow itself, and on demand (`workflow_dispatch`). It runs the CYD's
+`idf.py` line in `firmware/` with ESP-IDF v5.4.1 - the runner's version,
+where the script above takes 5.5 from `IDF_PATH` - into `build_cyd`, with
+the `sdkconfig.defaults` and `sdkconfig.defaults.cyd` pair the script
+uses.
+
+The image is signed with `firmware/keys/ota_signing_key.pem`. When the
+repository has an `OTA_SIGNING_KEY` secret the workflow writes it there;
+without one it generates a throwaway RSA-3072 key and says so in the log,
+so its image compiles and runs but can never take an update. On
+`mediacutlet/pocket-tank` itself a missing secret fails the job instead.
+
+The artifact, `pocket-tank-cyd-<sha>`, holds every `.bin` of the build
+(bootloader, partition table, the app, otadata) and `flasher_args.json`,
+the offsets to write them at, kept 14 days. It holds no model: the model
+is `model/out/model_q4.bin`, taken from the tree or a release and written
+at `0x290000` as above, trailer included. So a downloaded artifact is
+enough to update a board (the app and otadata), not to revive one whose
+model is damaged.
 
 ### The serial console (the director)
 
@@ -624,7 +772,16 @@ Each of these needs ESP-IDF's environment (the `export.sh` line above).
   ```sh
   esptool.py --chip esp32s3 -p <port> erase_flash
   tools/build_cyd.sh <port> --model
+  cd firmware
+  python ../tools/model_trailer.py --check --build-dir build_cyd
+  python -m esptool --chip esp32s3 -p <port> -b 921600 write_flash 0xA8F000 build_cyd/model_trailer.bin
   ```
+
+  The last two lines are the model's trailer, which `--model` does not
+  write; without them the board hashes the body on its first boot and
+  writes the trailer itself, so the log says `no trailer: hashed the body`
+  once and then `trailer written` (*The model partition, and AI MODEL
+  DAMAGED*).
 
 - **Put the factory image back:**
 
