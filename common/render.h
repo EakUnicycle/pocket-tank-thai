@@ -717,10 +717,10 @@ bool render_crab_collect_hit(const tank_t *t, float x, float y);   /* the crab c
 #define SHP_MODAL_X   48             /* wider than the milestones modal (56 / 336): an item's second line runs to 28 chars = 334 px */
 #define SHP_MODAL_W   352
 #define SHP_MODAL_Y   48
-#define SHP_MODAL_H   244
+#define SHP_MODAL_H   272             /* 28 taller since the Thai round (2026-11-27): at scale 2 a Thai line sets 30 px, and the words, their second line, the state and the shelf's line then still end above the buttons */
 #define SHP_EARN_MODAL_Y 40
 /* the caption under the rows sits SHP_BTN_H + 12 under the last row (the third row, the castle, 2026-09-16: it used to be fixed at 224 / 244 and the castle's row ran into it) */
-#define SHP_EARN_MODAL_H 272        /* eight lines since the crab's find (0.3.9; seven since the seahorse's snack) */
+#define SHP_EARN_MODAL_H 288        /* eight lines since the crab's find (0.3.9; seven since the seahorse's snack) - 16 taller since the Thai round (2026-11-27): a Thai line sets the list's own depth (render_line_pitch), 30 px a line at scale 2 */
 #define SHP_TWO_GAP 16               /* MOVE and SELL side by side in the modal */
 #define SHP_TWO_X0  (SHP_MODAL_X + (SHP_MODAL_W - 2 * MSP_HOW_W - SHP_TWO_GAP) / 2)
 #define SHP_TWO_X1  (SHP_TWO_X0 + MSP_HOW_W + SHP_TWO_GAP)
@@ -1038,11 +1038,11 @@ int  render_library_tap(float x, float y, int n);
 #undef  SHP_MODAL_Y
 #define SHP_MODAL_Y   UI(48)
 #undef  SHP_MODAL_H
-#define SHP_MODAL_H   UI(244)
+#define SHP_MODAL_H   UI(272)        /* (2026-11-27: the design's 272, as upstream - the Thai lines want the room here too; the panel ends at page y 208 of 240) */
 #undef  SHP_EARN_MODAL_Y
 #define SHP_EARN_MODAL_Y UI(40)
 #undef  SHP_EARN_MODAL_H
-#define SHP_EARN_MODAL_H UI(272)     /* eight lines since the crab's find (v0.3.9; seven since the seahorse's snack) */
+#define SHP_EARN_MODAL_H UI(276)     /* eight lines since the crab's find (v0.3.9; seven since the seahorse's snack); +UI(4) for Thai (2026-11-27, 18 px a line at scale 1) - UI(288) would reach the foot's buttons at 214 */
 #undef  SHP_TWO_GAP
 #define SHP_TWO_GAP   UI(16)
 /* the fry modal's three boxes (v0.3.6's sync): upstream's 3 x 100 + 2 x 10 is

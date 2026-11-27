@@ -98,7 +98,7 @@ void shelf_boot(int64_t now_unix) {
     if (!shelf_port_frame_get("now", &s_now, sizeof s_now, &got) || got != sizeof s_now || s_now.magic != NOW_MAGIC) {
         memset(&s_now, 0, sizeof s_now);          /* the first boot with shelves: the tank on the glass is tank 1 */
         s_now.magic = NOW_MAGIC; s_now.layout = SHELF_LAYOUT; s_now.id = 1; s_now.type = 0; s_now.pos = 0;
-        snprintf(s_now.name, sizeof s_now.name, "MY TANK");
+        snprintf(s_now.name, sizeof s_now.name, "ตู้ 1");   /* (15 bytes a name = five Thai letters: "ตู้ปลา" is 18, so a tank keeps its number - 2026-11-27, the Thai round) */
         save_now();
     }
     scan();
@@ -176,7 +176,7 @@ int shelf_new(int type, int64_t now_unix) {
     h.shelved_unix = h.clock_unix = now_unix;
     /* the lowest TANK n no tank wears (a count repeats a name once a tank is removed) */
     for (unsigned n = 2; n < 1024; n++) {
-        snprintf(h.name, sizeof h.name, "TANK %u", n);
+        snprintf(h.name, sizeof h.name, "ตู้ %u", n);
         bool used = !strcmp(s_now.name, h.name);
         for (int i = 0; i < s_n && !used; i++) used = !strcmp(s_t[i].h.name, h.name);
         if (!used) break;
@@ -260,7 +260,7 @@ bool shelf_rename(int i, const char *name) {
         size_t a = strlen(ln[0]), b = strlen(ln[1]); if (a > 7) a = 7; if (b > 7) b = 7;
         memcpy(nm, ln[0], a); nm[a] = '\n'; memcpy(nm + a + 1, ln[1], b);
     } else if (ln[0][0] || ln[1][0]) memcpy(nm, ln[0][0] ? ln[0] : ln[1], strlen(ln[0][0] ? ln[0] : ln[1]));   /* (one line: up to 15, an old name) */
-    else snprintf(nm, sizeof nm, "TANK %u", (unsigned)h.pos + 1);
+    else snprintf(nm, sizeof nm, "ตู้ %u", (unsigned)h.pos + 1);
     (void)nl;
     if (!memcmp(nm, h.name, sizeof nm)) return true;
     memcpy(h.name, nm, sizeof h.name);

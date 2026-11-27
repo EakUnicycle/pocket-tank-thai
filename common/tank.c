@@ -185,9 +185,9 @@ const uint32_t CORAL_PAL[CORAL_N] = { 0xff7a1e, 0xf2698f, 0xd24bb4, 0x8a5be0, 0x
  * orange coral, purple tubes, a cyan brain; LAGOON pink / blue / lime;
  * DUSK magenta / teal / gold */
 const cluster_scheme_t CLUSTER_SCHEMES[CLUSTER_SCHEME_N] = {
-    { "REEF",   0xff6a2a, 0x9b4fe0, 0x5fd8e8 },
-    { "LAGOON", 0xf25c8a, 0x3f8ff0, 0xb9f04a },
-    { "DUSK",   0xd24bb4, 0x2ec9b4, 0xf2c23a },
+    { "พืดหิน", 0xff6a2a, 0x9b4fe0, 0x5fd8e8 },
+    { "ลากูน",  0xf25c8a, 0x3f8ff0, 0xb9f04a },
+    { "พลบค่ำ", 0xd24bb4, 0x2ec9b4, 0xf2c23a },
 };
 
 void tank_set_name(tank_t *t, int slot, const char *name) {
@@ -1993,9 +1993,9 @@ void tank_seahorse_place(tank_t *t) {
     t->sh_x = t->sh_tx; t->sh_y = t->sh_ty; t->sh_mode = SH_PERCH; t->sh_stay = sh_stay_for(t); t->sh_land = SH_LAND_S;
 }
 const char *tank_seahorse_holding(const tank_t *t) {
-    if (t->sh_akind == SH_ANCHOR_BLADE) return t->sh_bed >= 0 && tank_veg_kind(t, t->sh_bed) == VEG_KIND_SWORD ? "A LEAF" : "A BLADE";
-    if (t->sh_akind == SH_ANCHOR_POST) return t->sh_aitem == 2 ? "THE CASTLE" : t->sh_aitem == 3 ? "THE CORAL" : t->sh_aitem == 9 ? "THE VOLCANO" : "THE REEF";
-    return "THE SAND";
+    if (t->sh_akind == SH_ANCHOR_BLADE) return t->sh_bed >= 0 && tank_veg_kind(t, t->sh_bed) == VEG_KIND_SWORD ? "ใบหญ้า" : "หญ้าทะเล";
+    if (t->sh_akind == SH_ANCHOR_POST) return t->sh_aitem == 2 ? "ปราสาท" : t->sh_aitem == 3 ? "ปะการัง" : t->sh_aitem == 9 ? "ภูเขาไฟ" : "พืดหิน";
+    return "ทราย";
 }
 bool tank_seahorse_hit(const tank_t *t, float x, float y) {
     if (!(t->sd_unlocks & SD_ITEM_SEAHORSE) || t->sh_x < 0) return false;

@@ -1408,7 +1408,7 @@ enum { SH_POSE_BLADE = 1, SH_POSE_GRIP = 2 };
 float tank_seahorse_jut(const tank_t *t);          /* the head's jut right now, px (the renderer) */
 #define SH_SNACK_COOL_S (10.0f * 60.0f)   /* one PAID snack per this long (Strato: "10 minute cooldown so it can't be abused") */
 void  tank_seahorse_place(tank_t *t);              /* fresh in the tank: on a blade, or adrift by the grass */
-const char *tank_seahorse_holding(const tank_t *t); /* its card: A BLADE / A LEAF / THE CASTLE / THE CORAL / THE REEF / THE VOLCANO / THE SAND */
+const char *tank_seahorse_holding(const tank_t *t); /* its card: หญ้าทะเล / ใบหญ้า / ปราสาท / ปะการัง / พืดหิน / ภูเขาไฟ / ทราย */
 bool  tank_seahorse_hit(const tank_t *t, float x, float y);
 float tank_seahorse_days(const tank_t *t);        /* its card: whole days with the keeper */
 

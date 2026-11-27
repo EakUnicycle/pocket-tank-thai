@@ -175,21 +175,27 @@ void progression_ack_milestones(tank_t *t);
  * "all fish must have a minimum six out of 10 trust score", not a hint), a
  * progress phrase (where it stands), a 0..1 fraction and whether it is met. Returns the count, 0 at the
  * population cap. *staged = every gate is met and the fry is on its way
- * (the spawning). Strings fit the pixel font: <= 25 chars at scale 2. */
+ * (the spawning). Thai since 2026-11-27 (the fry-gate round), so a string's
+ * room is counted in bytes: a words line is one short sentence of <= 20
+ * characters (60), the widest 198 px at scale 2 in the modal's 336 (99 of
+ * the CYD's 219 at scale 1), and a progress phrase fits the same line. */
 enum { FRY_REQ_TRUST, FRY_REQ_FEED, FRY_REQ_HOLD, FRY_REQ_GROW, FRY_REQ_CHANGE, FRY_REQ_GRASS, FRY_REQ_GLASS };
 #define FRY_REQ_MAX 5
 typedef struct {
     int   kind;
-    char  title[12];
-    char  words[28], words2[28];   /* what to do, a plain sentence over two lines */
-    char  progress[28];            /* where it stands */
+    char  title[32];               /* Thai since 2026-11-27: "ความไว้ใจ" is 27 bytes */
+    char  words[64], words2[64];   /* what to do, over two lines: Thai, <= 20 characters a line (60 bytes;
+                                    * 64 leaves room for a fish's name in NISAI's) */
+    char  progress[64];            /* where it stands: a name, "เป็น" and a Thai stage (15 + 13 + 27),
+                                    * or "แปลงหญ้าสูงสุด 100%" (51) */
     float frac;
     bool  met;
 } fry_req_t;
 int progression_next_fry(const tank_t *t, fry_req_t out[FRY_REQ_MAX], bool *staged);
 /* the tip behind a gate (Strato: "if someone reads 'all fish must have a
  * trust of at least six' they may ask OK how do I do that?"): HOW the
- * keeper moves it, in up to FRY_TIP_LINES lines of <= 26 chars, NULL-
+ * keeper moves it, in up to FRY_TIP_LINES lines of one short Thai sentence
+ * each (<= 24 characters, 75 bytes: 304 px at scale 2 in the tip page's 336), NULL-
  * terminated. Written from the rules in tank.c / progression.c (trust
  * only rises under a resting finger; quick taps cost it; fish age only
  * while lit; grass regrows by itself; the glass is wiped by a drag). */
@@ -246,8 +252,11 @@ const char *const *progression_fry_tip(int kind);
 typedef struct {
     uint32_t    bit;               /* SD_ITEM_* */
     const char *name;              /* <= 15 chars: the row draws it at scale 2 from x 76, 178 px, short of the button at 300;
-                                    * the modal at scale 3, 267 px in 352 */
-    const char *words, *words2;    /* what it does, two lines of <= 25 chars */
+                                    * the modal at scale 3, 267 px in 352. Thai (2026-11-27): 15 characters of it
+                                    * are 75 px at the row's scale and 150 in the modal - the 15 are the crab's */
+    const char *words, *words2;    /* what it does, two lines: Thai since 2026-11-27, at most 24 characters
+                                    * (146 px at scale 1 in the CYD's 222 px modal, 292 of the 344 the
+                                    * rectangle's scale 2 leaves) - render_shop centres both */
     int         price;
 } sd_item_t;
 extern const sd_item_t SD_ITEMS[SD_ITEM_COUNT];

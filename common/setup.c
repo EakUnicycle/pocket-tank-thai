@@ -677,7 +677,7 @@ void render_setup(const tank_t *t, uint16_t *fb, int stride, float clock) {
         /* the live tank with a stripe over the piece's footprint: drag it
            anywhere on the water; the layer row picks its depth (the tank
            under the page redraws with it, so the fish and grass show the choice) */
-        char title[40]; snprintf(title, sizeof title, "วาง %s", SD_ITEMS[s_item].name);
+        char title[64]; snprintf(title, sizeof title, "วาง %s", SD_ITEMS[s_item].name);   /* (the Thai names: the crab's is 45 bytes, 56 with the word) */
         text_c(fb, stride, CX, SETUP_Y + UI(10), UI_TEXT(2), C_CAPT, title);
         render_button(fb, stride, SETUP_TOP_DONE_X, SETUP_TOP_BTN_Y, SETUP_PL_BTN_W, SETUP_BTN_H, C_GO, C_GO_E, "เสร็จ", UI_TEXT(2));
         /* SELL, top left (2026-09-24): a tap arms it and names the refund, a
@@ -702,7 +702,7 @@ void render_setup(const tank_t *t, uint16_t *fb, int stride, float clock) {
         /* the relation, in the depth bar's own words (Strato 2026-10-17: "behind
            the coral" / "in front of the coral"); Thai carries no article, so
            the line is built once - nothing to drop when it runs long */
-        char rel[40] = "";
+        char rel[64] = "";
         if (above >= 0) snprintf(rel, sizeof rel, "หลัง %s", SD_ITEMS[above].name);
         else if (below >= 0) snprintf(rel, sizeof rel, "หน้า %s", SD_ITEMS[below].name);
         /* the DEPTH bar: one outlined box, three joined segments, the chosen
@@ -790,17 +790,17 @@ void render_setup(const tank_t *t, uint16_t *fb, int stride, float clock) {
             int x = KG_X + kg_col(k) * KG_PX, y = KG_Y + kg_row(k) * KG_PY, w = kg_w(k);
             render_rect(fb, stride, x, y, w, KG_H, C_KEY);
             render_rect_edge(fb, stride, x, y, w, KG_H, C_DIM);
-            char lab[4] = { (char)('A' + k), 0 };
-            if (k == SETUP_KEY_DEL) strcpy(lab, "DEL");
+            char lab[8] = { (char)('A' + k), 0 };   /* (8 bytes: a Thai letter is three) */
+            if (k == SETUP_KEY_DEL) strcpy(lab, "ลบ");
             render_text(fb, stride, x + (w - render_text_w(lab, UI_TEXT(2))) / 2, y + (KG_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), C_TEXT, lab);
         } else for (int cell = 0; cell < KP_COLS * KP_ROWS; cell++) {
             int k = kp_key(cell), x = KP_X + (cell % KP_COLS) * KP_PX, y = KP_Y + (cell / KP_COLS) * KP_PY;
             bool special = k >= 26;
             render_rect(fb, stride, x, y, KP_W, KP_H, special ? C_INNER : C_KEY);
             render_rect_edge(fb, stride, x, y, KP_W, KP_H, special ? C_EDGE : C_DIM);
-            char lab[4] = { (char)('A' + k), 0 };
-            if (k == SETUP_KEY_DEL) strcpy(lab, "DEL");
-            if (k == SETUP_KEY_PAGE) strcpy(lab, s_kb_page ? "A-M" : "N-Z");
+            char lab[8] = { (char)('A' + k), 0 };
+            if (k == SETUP_KEY_DEL) strcpy(lab, "ลบ");
+            if (k == SETUP_KEY_PAGE) strcpy(lab, s_kb_page ? "A-M" : "N-Z");   /* (a letter range, not a word: the keys are Latin) */
             render_text(fb, stride, x + (KP_W - render_text_w(lab, UI_TEXT(3))) / 2, y + (KP_H - 7 * UI_TEXT(3)) / 2, UI_TEXT(3), C_TEXT, lab);
         }
         nav(fb, stride, !grid, s_rename ? "เสร็จ" : "ต่อ", s_rename);

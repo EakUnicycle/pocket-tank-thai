@@ -18,21 +18,24 @@
 #define SAVE_HEARTBEAT_S 600.0f
 #define SAVE_MIN_GAP_S   30.0f
 
+/* the words in Thai (2026-11-27, the Thai round): a name is drawn where the
+ * detail modal's caption goes - 336 design px, 211 on the CYD - so a name
+ * stays at 21 characters (63 bytes) or under; g_ms_caption keeps 72. */
 const char *const MS_NAMES[MS_FISH_COUNT] = {
-    "arrived", "first meal from you", "first hold-approach", "first dart", "first bubbles",
-    "(inspected)", "(retired)", "(retired)", "first follow",
-    "reached juv", "reached adult", "reached elder",
-    "first rest in the seagrass",
+    "มาถึงตู้แล้ว", "อาหารมือแรกจากคุณ", "เข้ามาหานิ้วครั้งแรก", "พุ่งว่ายครั้งแรก", "เป่าฟองครั้งแรก",
+    "(ตรวจแล้ว)", "(ปลดระวาง)", "(ปลดระวาง)", "ตามนิ้วครั้งแรก",
+    "ปลาวัยรุ่นแล้ว", "ปลาโตเต็มวัยแล้ว", "ปลาเฒ่าแล้ว",
+    "พักในหญ้าทะเลครั้งแรก",
 };
 const char *const TMS_NAMES[TMS_COUNT] = {
-    "a pair", "a trio", "a quartet", "a quintet", "a sextet",
-    "first full night's sleep", "first play session", "the tank changed someone", "first feeding",
-    "first trimming", "first glass cleaning", "a school of ten shrimp",
-    "first visit to the reef",
-    "first mutation",                    /* 0.4's (main); never set on 0.3.x */
-    "first fish sold",
-    "first seahorse feeding",            /* 0.3.6 */
-    "first sand dollar dug up",          /* 0.3.9: the crab's first find, taken - every find after it pays double */
+    "อยู่กันสองตัว", "อยู่กันสามตัว", "อยู่กันสี่ตัว", "อยู่กันห้าตัว", "อยู่กันหกตัว",
+    "หลับเต็มคืนครั้งแรก", "เล่นด้วยกันครั้งแรก", "ปลาเปลี่ยนนิสัย", "ให้อาหารครั้งแรก",
+    "ตัดหญ้าครั้งแรก", "เช็ดกระจกครั้งแรก", "ฝูงกุ้งสิบตัว",
+    "ไปแนวปะการังครั้งแรก",
+    "กลายพันธุ์ครั้งแรก",                /* 0.4's (main); never set on 0.3.x */
+    "ขายปลาครั้งแรก",
+    "ให้อาหารม้าน้ำครั้งแรก",             /* 0.3.6 */
+    "ขุดเหรียญทรายครั้งแรก",             /* 0.3.9: the crab's first find, taken - every find after it pays double */
 };
 
 /* the save keeps 644 film cells - the rectangle's 28 x 23 grid, frozen by the
@@ -392,18 +395,26 @@ void  progression_newborn_done(tank_t *t) { s_newborn = -1; progression_save(t);
 
 static void set_ms(fish_t *f, uint32_t bit) { if (!(f->ms_bits & bit)) { f->ms_bits |= bit; mark_dirty(); } }
 /* ---- sand dollars ---- */
+/* the names in Thai (2026-11-27, the Thai round) and, since the shop's round
+ * the same day, the two description lines (it->words / words2) with them: a
+ * name keeps the 15 characters the Latin ones kept, since the row draws it at
+ * scale 2 from x 76 into 178 px (15 Thai characters are 150) and the modal at
+ * scale 3 into 267. The strawberry crab's is the longest at 15 - 45 bytes. A
+ * description line is at most 24 characters - 146 px at scale 1 in the CYD's
+ * 222 px modal, 292 of the 344 the rectangle's scale 2 leaves - so both lines
+ * stay literals, nothing here is copied into a short buffer. */
 const sd_item_t SD_ITEMS[SD_ITEM_COUNT] = {
-    { SD_ITEM_PLANT, "SWORD PLANT", "BROAD, VERTICAL LEAVES", "MORE COVER FOR YOUR CRITTERS", SD_PRICE_PLANT },   /* Strato's words (2026-09-16); the second line is 28 chars, the shop modal is 352 wide for it */
-    { SD_ITEM_SNAIL, "SNAIL",       "GRAZES THE GLASS CLEAN,",   "EVEN WHILE THE TANK SLEEPS",  SD_PRICE_SNAIL },
-    { SD_ITEM_CASTLE, "CASTLE",     "STONE TOWERS AND AN ARCH",  "THE FISH SWIM THROUGH IT",    SD_PRICE_CASTLE },   /* 2026-09-16 */
-    { SD_ITEM_CORAL,  "CORAL",      "A BRANCHING REEF CORAL,",   "GROWS FOR WEEKS, YOUR COLOR", SD_PRICE_CORAL },    /* 2026-09-23 */
-    { SD_ITEM_CLUSTER, "REEF CLUSTER", "A MATURE REEF ON A ROCK,", "FILLS OUT, THEN IT BLOOMS",  SD_PRICE_CLUSTER },  /* 2026-09-24: the dearest; three looks on its page */
-    { SD_ITEM_SHRIMP,  "SHRIMP",    "A SCHOOL OF CHERRY SHRIMP", "THEY EAT SCRAPS AND MULTIPLY", SD_PRICE_SHRIMP },
-    { SD_ITEM_URCHIN,  "SEA URCHIN", "NIBBLES THE TALL GRASS,",  "EVEN WHILE THE TANK SLEEPS",  SD_PRICE_URCHIN },  /* 2026-10-02: the episode 5 promise, a resident like the snail */  /* 2026-09-29: a resident, like the snail; Strato: "should mention that they multiply" (28 chars, as the plant's) */
-    { SD_ITEM_SEAHORSE, "SEAHORSE",  "HOLDS ON TO YOUR FINGER,",  "FISH TRUST YOU TWICE AS FAST", SD_PRICE_SEAHORSE },  /* 0.3.6: the tame one (28 chars, as the plant's) */
-    { SD_ITEM_PUMPKIN, "PUMPKIN",    "GLOWS WHEN THE LIGHTS GO OUT", "FOR OCTOBER, YOURS TO KEEP", SD_PRICE_PUMPKIN },  /* 0.3.6: the seasonal lantern (Strato 10-17) */
-    { SD_ITEM_VOLCANO, "VOLCANO",    "A CONE OF ROCK AND LAVA,",    "GLOWING BUBBLES RISE FROM IT", SD_PRICE_VOLCANO },  /* 0.3.9: DonB's bubble volcano (28 chars, as the plant's) */
-    { SD_ITEM_CRAB,    "STRAWBERRY CRAB", "DIGS UP SAND DOLLARS,",      "NAPS IN THE CASTLE OR CAVE", SD_PRICE_CRAB },  /* 0.3.9: the strawberry crab (Vulcanite's crab, Strato's strawberry sheets) */
+    { SD_ITEM_PLANT, "ต้นหญ้าดาบ", "ใบกว้างตั้งตรง", "ที่หลบภัยของสัตว์เล็ก", SD_PRICE_PLANT },   /* Strato's words (2026-09-16) */
+    { SD_ITEM_SNAIL, "หอยทาก",     "แทะตะไคร่ให้กระจกใส",   "ทำงานแม้ตอนตู้หลับ",  SD_PRICE_SNAIL },
+    { SD_ITEM_CASTLE, "ปราสาท",     "หอคอยหินและซุ้มประตู",  "ปลาว่ายลอดผ่านไปได้",    SD_PRICE_CASTLE },   /* 2026-09-16 */
+    { SD_ITEM_CORAL,  "ปะการัง",    "ปะการังกิ่งก้านแตกแขนง",   "โตหลายสัปดาห์ สีของคุณ", SD_PRICE_CORAL },    /* 2026-09-23 */
+    { SD_ITEM_CLUSTER, "กลุ่มปะการัง", "แนวปะการังโตบนก้อนหิน", "แผ่กว้างแล้วผลิบาน",  SD_PRICE_CLUSTER },  /* 2026-09-24: the dearest; three looks on its page */
+    { SD_ITEM_SHRIMP,  "กุ้งเชอร์รี", "ฝูงกุ้งเชอร์รีตัวเล็ก", "กินเศษอาหารและเพิ่มจำนวน", SD_PRICE_SHRIMP },
+    { SD_ITEM_URCHIN,  "เม่นทะเล",  "แทะหญ้าสูงให้เตี้ยลง",  "ทำงานแม้ตอนตู้หลับ",  SD_PRICE_URCHIN },  /* 2026-10-02: the episode 5 promise, a resident like the snail */  /* 2026-09-29: a resident, like the snail; Strato: "should mention that they multiply" */
+    { SD_ITEM_SEAHORSE, "ม้าน้ำ",    "เกาะนิ้วคุณไว้แน่น",  "ปลาไว้ใจคุณเร็วสองเท่า", SD_PRICE_SEAHORSE },  /* 0.3.6: the tame one */
+    { SD_ITEM_PUMPKIN, "ฟักทอง",    "เรืองแสงเมื่อปิดไฟ", "ของเดือนตุลา เก็บไว้ได้", SD_PRICE_PUMPKIN },  /* 0.3.6: the seasonal lantern (Strato 10-17) */
+    { SD_ITEM_VOLCANO, "ภูเขาไฟ",   "ภูเขาไฟหินและลาวา",    "ฟองเรืองแสงลอยขึ้นมา", SD_PRICE_VOLCANO },  /* 0.3.9: DonB's bubble volcano */
+    { SD_ITEM_CRAB,    "ปูสตรอว์เบอร์รี", "ขุดเหรียญทรายขึ้นมา",      "นอนในปราสาทหรือถ้ำ", SD_PRICE_CRAB },  /* 0.3.9: the strawberry crab (Vulcanite's crab, Strato's strawberry sheets) */
 };
 /* the pumpkin's season (0.3.6; Strato 2026-10-17: "it can remain on their
  * board until they upgrade ... whatever release comes after oct 31 will
@@ -544,17 +555,19 @@ bool progression_buy(tank_t *t, int item) {
     return true;
 }
 const char *const *progression_sd_earn_lines(void) {
-    static char lines[SD_EARN_LINES][30]; static const char *ptr[SD_EARN_LINES + 1]; static bool made;
+    static char lines[SD_EARN_LINES][96]; static const char *ptr[SD_EARN_LINES + 1]; static bool made;
     if (!made) {
-        /* <= 25 chars each: the modal is 336 px wide at scale 2 */
-        snprintf(lines[0], 30, "+%d  EACH FISH YOU FEED", SD_MEAL);
-        snprintf(lines[1], 30, "+%d/%d/%d  A FISH GROWS UP", SD_STAGE_JUV, SD_STAGE_ADULT, SD_STAGE_ELDER);
-        snprintf(lines[2], 30, "+%d  A NEW FRY IS BORN", SD_BIRTH);
-        snprintf(lines[3], 30, "+%d  A FISH FULLY TRUSTS", SD_TRUST);
-        snprintf(lines[4], 30, "+%d  %d ALGAE COLONIES", SD_CHORE, SD_CHORE_EVERY);
-        snprintf(lines[5], 30, "+%d  %d CM OF GRASS CUT", SD_CHORE, SD_TRIM_CM);
-        snprintf(lines[6], 30, "+%d  THE SEAHORSE SNACKS", SD_SNACK);
-        snprintf(lines[7], 30, "+%d/%d  THE CRAB DIGS ONE UP", SD_CRAB_FIND, SD_CRAB_FIND_AGAIN);   /* the first, then every one after (the badge's reward) */
+        /* Thai (2026-11-27), so 3 bytes a character: the longest is 127 px at
+         * scale 1 ("+25  ตัดหญ้า 250 ซม."), the CYD's earn modal keeps 212 for
+         * a line (338 on the rectangle's scale 2). The buffer is bytes. */
+        snprintf(lines[0], 96, "+%d  ทุกมื้อที่ให้อาหาร", SD_MEAL);
+        snprintf(lines[1], 96, "+%d/%d/%d  ปลาโตขึ้นขั้น", SD_STAGE_JUV, SD_STAGE_ADULT, SD_STAGE_ELDER);
+        snprintf(lines[2], 96, "+%d  ลูกปลาเกิดใหม่", SD_BIRTH);
+        snprintf(lines[3], 96, "+%d  ปลาไว้ใจเต็มร้อย", SD_TRUST);
+        snprintf(lines[4], 96, "+%d  ตะไคร่ %d ก้อน", SD_CHORE, SD_CHORE_EVERY);
+        snprintf(lines[5], 96, "+%d  ตัดหญ้า %d ซม.", SD_CHORE, SD_TRIM_CM);
+        snprintf(lines[6], 96, "+%d  ม้าน้ำได้ขนม", SD_SNACK);
+        snprintf(lines[7], 96, "+%d/%d  ปูขุดเจอเหรียญ", SD_CRAB_FIND, SD_CRAB_FIND_AGAIN);   /* the first, then every one after (the badge's reward) */
         for (int i = 0; i < SD_EARN_LINES; i++) ptr[i] = lines[i];
         ptr[SD_EARN_LINES] = NULL; made = true;
     }
@@ -754,14 +767,18 @@ static void arrival_conditions(const tank_t *t, int *met, int *total) {
     for (int i = 0; i < *total; i++) *met += g[i].met;
 }
 
-/* how each gate is moved - the words behind the HOW? button */
-static const char *const TIP_TRUST[]  = { "REST A FINGER ON THE GLASS", "AND KEEP IT STILL. EVERY", "FISH EARNS TRUST WHILE IT", "RESTS THERE. 3 QUICK TAPS", "SCARE THEM AND COST TRUST.", NULL };
-static const char *const TIP_FEED[]   = { "TAP THE WATER AT THE TOP", "OF THE TANK TO DROP FOOD.", "A FEEDING COUNTS AS A MEAL", "ONCE A FISH EATS FROM IT.", NULL };
-static const char *const TIP_HOLD[]   = { "REST A FINGER ON THE GLASS", "FOR A FEW SECONDS. A FISH", "THAT TRUSTS YOU SWIMS OVER", "AND STAYS. FEED FIRST: A", "HUNGRY FISH WON'T COME.", NULL };
-static const char *const TIP_GROW[]   = { "FISH GROW WITH TIME,", "SLOWER WHEN THE TANK IS", "IN SLEEP MODE.", NULL };
-static const char *const TIP_CHANGE[] = { "FISH PERSONALITIES WILL", "NATURALLY DRIFT AS THEY", "INTERACT WITH THE WORLD.", NULL };   /* Strato: intentionally vague */
-static const char *const TIP_GRASS[]  = { "GRASS REGROWS ON ITS OWN,", "FASTEST WHILE THE TANK", "SLEEPS.", NULL };
-static const char *const TIP_GLASS[]  = { "DRAG A FINGER ACROSS THE", "GLASS TO WIPE IT CLEAN.", "UNLOCKABLE CRITTERS CAN", "HELP KEEP IT CLEAN.", NULL };   /* Strato's words */
+/* how each gate is moved - the words behind the HOW? button. Thai since
+ * 2026-11-27 (the fry-gate round): a line is one short sentence, at most 24
+ * characters (75 bytes) - the widest, "ทำให้ตกใจและเสียความไว้ใจ", is 304 px at
+ * scale 2 inside the tip page's 336 (152 of the CYD's 219 at scale 1) - and
+ * four lines at most, which the tip page's own height still holds. */
+static const char *const TIP_TRUST[]  = { "วางนิ้วนิ่งๆ บนกระจก", "ปลาจะไว้ใจคุณขึ้น", "แตะเร็วๆ สามครั้ง", "ทำให้ตกใจและเสียความไว้ใจ", NULL };
+static const char *const TIP_FEED[]   = { "แตะผิวน้ำด้านบนตู้", "เพื่อโปรยอาหารลงไป", "นับเป็นหนึ่งมื้อ", "เมื่อปลาได้กินอาหารนั้น", NULL };
+static const char *const TIP_HOLD[]   = { "วางนิ้วบนกระจกสักครู่", "ปลาที่ไว้ใจจะว่ายมา", "และอยู่ข้างนิ้วคุณ", "ให้อาหารก่อน ปลาหิวไม่มา", NULL };
+static const char *const TIP_GROW[]   = { "ปลาโตขึ้นตามเวลา", "ตอนตู้หลับจะโตช้าลง", NULL };
+static const char *const TIP_CHANGE[] = { "นิสัยปลาจะค่อยๆ เปลี่ยน", "เมื่อได้ใช้ชีวิตร่วมกัน", NULL };   /* Strato: intentionally vague */
+static const char *const TIP_GRASS[]  = { "หญ้างอกใหม่ได้เอง", "เร็วที่สุดตอนตู้หลับ", NULL };
+static const char *const TIP_GLASS[]  = { "ลากนิ้วผ่านกระจก", "เพื่อเช็ดตะไคร่ให้ใส", "สัตว์ที่ปลดล็อกช่วย", "ดูแลกระจกให้สะอาดได้", NULL };   /* Strato's words */
 const char *const *progression_fry_tip(int kind) {
     switch (kind) {
     case FRY_REQ_TRUST:  return TIP_TRUST;
@@ -775,7 +792,7 @@ const char *const *progression_fry_tip(int kind) {
 }
 
 /* the checklist, in words. No %f: the device's printf may be the nano one. */
-static const char *const STAGE_WORDS[4] = { "A FRY", "A JUVENILE", "AN ADULT", "AN ELDER" };
+static const char *const STAGE_WORDS[4] = { "ลูกปลา", "ปลาวัยรุ่น", "ปลาโตเต็มวัย", "ปลาเฒ่า" };   /* (2026-11-27, the Thai round) */
 int progression_next_fry(const tank_t *t, fry_req_t out[FRY_REQ_MAX], bool *staged) {
     if (staged) *staged = s_arrival_pending;
     if (t->n_fish >= POP_CAP || t->n_fish >= N_FISH_MAX || t->n_fish < 2) return 0;
@@ -788,48 +805,48 @@ int progression_next_fry(const tank_t *t, fry_req_t out[FRY_REQ_MAX], bool *stag
         int have = (int)g[i].have, need = (int)g[i].need;
         switch (g[i].kind) {
         case FRY_REQ_TRUST:
-            snprintf(r->title, sizeof r->title, "TRUST");
-            snprintf(r->words, sizeof r->words, "ALL FISH MUST HAVE TRUST");
-            snprintf(r->words2, sizeof r->words2, "OF AT LEAST %d OUT OF 10", need);
-            if (r->met) snprintf(r->progress, sizeof r->progress, "EVERY FISH DOES");
+            snprintf(r->title, sizeof r->title, "ความไว้ใจ");
+            snprintf(r->words, sizeof r->words, "ปลาทุกตัวต้องไว้ใจ");
+            snprintf(r->words2, sizeof r->words2, "อย่างน้อย %d จาก 10", need);
+            if (r->met) snprintf(r->progress, sizeof r->progress, "ทุกตัวไว้ใจแล้ว");
             else { int tenths = (int)(g[i].have * 10 + 0.5f);
-                   snprintf(r->progress, sizeof r->progress, "LOWEST NOW %d.%d", tenths / 10, tenths % 10); }
+                   snprintf(r->progress, sizeof r->progress, "ต่ำสุดตอนนี้ %d.%d", tenths / 10, tenths % 10); }
             break;
         case FRY_REQ_FEED:
-            snprintf(r->title, sizeof r->title, "MEALS");
-            snprintf(r->words, sizeof r->words, "FEED THE FISH AT LEAST");
-            snprintf(r->words2, sizeof r->words2, "%d TIMES IN ALL", need);
-            if (r->met) snprintf(r->progress, sizeof r->progress, "DONE");
-            else snprintf(r->progress, sizeof r->progress, "%d OF %d SO FAR", have, need);
+            snprintf(r->title, sizeof r->title, "อาหาร");
+            snprintf(r->words, sizeof r->words, "ให้อาหารปลารวม");
+            snprintf(r->words2, sizeof r->words2, "อย่างน้อย %d ครั้ง", need);
+            if (r->met) snprintf(r->progress, sizeof r->progress, "สำเร็จแล้ว");
+            else snprintf(r->progress, sizeof r->progress, "%d จาก %d แล้ว", have, need);
             break;
         case FRY_REQ_HOLD:
-            snprintf(r->title, sizeof r->title, "HOLD");
-            snprintf(r->words, sizeof r->words, "REST A FINGER ON THE GLASS");
-            snprintf(r->words2, sizeof r->words2, "UNTIL A FISH SWIMS TO IT");
-            snprintf(r->progress, sizeof r->progress, r->met ? "DONE" : "NOT YET");
+            snprintf(r->title, sizeof r->title, "วางนิ้ว");
+            snprintf(r->words, sizeof r->words, "วางนิ้วนิ่งบนกระจก");
+            snprintf(r->words2, sizeof r->words2, "รอให้ปลาว่ายเข้ามา");
+            snprintf(r->progress, sizeof r->progress, r->met ? "สำเร็จแล้ว" : "ยังไม่สำเร็จ");
             break;
         case FRY_REQ_GROW: {
             const fish_t *f = &t->fish[t->n_fish - 1];
-            snprintf(r->title, sizeof r->title, "GROW");
-            snprintf(r->words, sizeof r->words, "THE YOUNGEST FISH MUST");
-            snprintf(r->words2, sizeof r->words2, need >= STAGE_ADULT_AGE ? "GROW INTO AN ADULT" : "GROW INTO A JUVENILE");
-            snprintf(r->progress, sizeof r->progress, "%s IS %s", f->name, STAGE_WORDS[f->stage & 3]);
+            snprintf(r->title, sizeof r->title, "โตขึ้น");
+            snprintf(r->words, sizeof r->words, "ปลาตัวเล็กสุดต้อง");
+            snprintf(r->words2, sizeof r->words2, "โตเป็น%s", STAGE_WORDS[need >= STAGE_ADULT_AGE ? STAGE_ADULT : STAGE_JUV]);
+            snprintf(r->progress, sizeof r->progress, "%s เป็น%s", f->name, STAGE_WORDS[f->stage & 3]);   /* (the Thai round: a 7-byte name, "เป็น" and the longest stage, 27, are 39 of the 64) */
             break; }
         case FRY_REQ_CHANGE: {
             const fish_t *f = &t->fish[t->n_fish - 1];
-            snprintf(r->title, sizeof r->title, "CHANGE");
-            snprintf(r->words, sizeof r->words, "%s'S PERSONALITY", f->name);
-            snprintf(r->words2, sizeof r->words2, "MUST START TO SHIFT");
-            if (r->met) snprintf(r->progress, sizeof r->progress, "DONE");
-            else snprintf(r->progress, sizeof r->progress, "%d%% THERE", (int)(r->frac * 100 + 0.5f));
+            snprintf(r->title, sizeof r->title, "นิสัย");
+            snprintf(r->words, sizeof r->words, "นิสัยของ%s", f->name);
+            snprintf(r->words2, sizeof r->words2, "ต้องเริ่มเปลี่ยน");
+            if (r->met) snprintf(r->progress, sizeof r->progress, "สำเร็จแล้ว");
+            else snprintf(r->progress, sizeof r->progress, "เปลี่ยนแล้ว %d%%", (int)(r->frac * 100 + 0.5f));
             break; }
         case FRY_REQ_GLASS: {
             int pct = (int)(g[i].have * 100 + 0.5f), limit = (int)(ALGAE_DIRTY * 100 + 0.5f);
-            snprintf(r->title, sizeof r->title, "GLASS");
-            snprintf(r->words, sizeof r->words, "NO MORE THAN %d%%", limit);          /* Strato's words, 2026-09-16 */
-            snprintf(r->words2, sizeof r->words2, "ALGAE COVERAGE");
-            if (r->met) snprintf(r->progress, sizeof r->progress, "CURRENTLY CLEAN ENOUGH");
-            else snprintf(r->progress, sizeof r->progress, "%d%% COVERED NOW", pct);
+            snprintf(r->title, sizeof r->title, "กระจก");
+            snprintf(r->words, sizeof r->words, "ตะไคร่บนกระจก");          /* Strato's words, 2026-09-16 */
+            snprintf(r->words2, sizeof r->words2, "ไม่เกิน %d%%", limit);
+            if (r->met) snprintf(r->progress, sizeof r->progress, "ตอนนี้สะอาดพอ");
+            else snprintf(r->progress, sizeof r->progress, "ตอนนี้ปกคลุม %d%%", pct);
             break; }
         }
     }
@@ -841,11 +858,11 @@ int progression_next_fry(const tank_t *t, fry_req_t out[FRY_REQ_MAX], bool *stag
         for (int b = 0; b < VEG_BEDS; b++) if (t->veg_growth[b] > best) best = t->veg_growth[b];
         r->kind = FRY_REQ_GRASS; r->met = tank_nursery_bed(t) >= 0;
         r->frac = r->met ? 1.0f : best / VEG_NURSERY;
-        snprintf(r->title, sizeof r->title, "GRASS");
-        snprintf(r->words, sizeof r->words, "ONE GRASS BED MUST GROW");
-        snprintf(r->words2, sizeof r->words2, "TALL ENOUGH TO HIDE IN");
-        if (r->met) snprintf(r->progress, sizeof r->progress, "A NURSERY BED IS READY");
-        else snprintf(r->progress, sizeof r->progress, "TALLEST BED %d%% THERE", (int)(r->frac * 100 + 0.5f));
+        snprintf(r->title, sizeof r->title, "หญ้าทะเล");
+        snprintf(r->words, sizeof r->words, "หญ้าต้องสูงพอ");
+        snprintf(r->words2, sizeof r->words2, "ให้ลูกปลาหลบซ่อน");
+        if (r->met) snprintf(r->progress, sizeof r->progress, "แปลงหญ้าพร้อมแล้ว");
+        else snprintf(r->progress, sizeof r->progress, "แปลงหญ้าสูงสุด %d%%", (int)(r->frac * 100 + 0.5f));
     }
     return n;
 }

@@ -418,7 +418,7 @@ static int selftest_pop(void) {
             || met != 2 || !req[3].met || !req[4].met) { printf("FAIL: a fresh pair's gates: %d met, glass %d, grass %d\n", met, req[3].met, req[4].met); return 1; }
         printf("selftest-pop: fry checklist: %d gates (%s / %s / %s / %s / %s)\n", n, req[0].progress, req[1].progress, req[2].progress, req[3].progress, req[4].progress);
         tank.player_feedings = 12; progression_next_fry(&tank, req, &staged);
-        if (!req[1].met || strcmp(req[1].progress, "DONE") || req[1].frac != 1.0f) { printf("FAIL: 12 feedings should meet the MEALS gate (%s)\n", req[1].progress); return 1; }
+        if (!req[1].met || strcmp(req[1].progress, "สำเร็จแล้ว") || req[1].frac != 1.0f) { printf("FAIL: 12 feedings should meet the MEALS gate (%s)\n", req[1].progress); return 1; }
         tank.player_feedings = 3; progression_next_fry(&tank, req, &staged);
         if (req[1].met || req[1].frac < 0.24f || req[1].frac > 0.26f) { printf("FAIL: 3 of 12 feedings should be a quarter (%.2f)\n", req[1].frac); return 1; }
         tank.player_feedings = 0;
@@ -445,11 +445,11 @@ static int selftest_pop(void) {
         tank_grow_algae(&tank, 2000);                                       /* an untended tank: up to the growth cap */
         progression_next_fry(&tank, req, &staged);
         printf("selftest-pop: fry checklist GLASS at the cap: %s / %s (bar %.2f)\n", req[3].words, req[3].progress, req[3].frac);
-        if (req[3].met || req[3].frac > 0.05f || strcmp(req[3].title, "GLASS")) { printf("FAIL: a tank at the cap should have GLASS owed with an empty bar (%d, %.2f)\n", req[3].met, req[3].frac); return 1; }
+        if (req[3].met || req[3].frac > 0.05f || strcmp(req[3].title, "กระจก")) { printf("FAIL: a tank at the cap should have GLASS owed with an empty bar (%d, %.2f)\n", req[3].met, req[3].frac); return 1; }
         for (int i = 0; i < ALGAE_CELLS; i++) tank.algae[i] = 0;
         tank.algae[0] = tank.algae[1] = 200;                                /* a little film is fine */
         progression_next_fry(&tank, req, &staged);
-        if (!req[3].met || req[3].frac != 1.0f || strcmp(req[3].progress, "CURRENTLY CLEAN ENOUGH")) { printf("FAIL: two filmed cells should pass GLASS (%s)\n", req[3].progress); return 1; }
+        if (!req[3].met || req[3].frac != 1.0f || strcmp(req[3].progress, "ตอนนี้สะอาดพอ")) { printf("FAIL: two filmed cells should pass GLASS (%s)\n", req[3].progress); return 1; }
         for (int i = 0; i < ALGAE_CELLS; i++) tank.algae[i] = 0;
     }
     progression_time_scale = 600;                 /* 10 minutes of tended time per second */
@@ -1143,13 +1143,13 @@ static int selftest_shelf(void) {
     /* 1. the first boot, a new tank, the first swap: the wallet and settings go with it */
     shelf_wipe();
     shelf_reboot();
-    if (shelf_now()->id != 1 || shelf_count() != 0 || strcmp(shelf_now()->name, "MY TANK")) SFAIL("first boot: tank %u '%s', %d shelved", (unsigned)shelf_now()->id, shelf_now()->name, shelf_count());
+    if (shelf_now()->id != 1 || shelf_count() != 0 || strcmp(shelf_now()->name, "ตู้ 1")) SFAIL("first boot: tank %u '%s', %d shelved", (unsigned)shelf_now()->id, shelf_now()->name, shelf_count());
     while (tank.n_fish < 5) tank_add_fish(&tank, 0, 1);
     tank.sd_balance = 900; tank_light_choice_set(&tank, 3); tank_screen_set(&tank, true);
     tank.sd_unlocks |= SD_ITEM_CASTLE | SD_ITEM_CORAL | SD_ITEM_SNAIL;   /* (pieces for REMOVE to value below - the snail is no piece) */
     progression_save(&tank);
     int b = shelf_new(0, clock_port_now_unix());
-    if (b != 0 || strcmp(shelf_get(0)->name, "TANK 2") || shelf_get(0)->pos != 1 || shelf_get(0)->save_len) SFAIL("new tank: index %d '%s' at %d, %u bytes", b, shelf_get(0)->name, shelf_get(0)->pos, shelf_get(0)->save_len);
+    if (b != 0 || strcmp(shelf_get(0)->name, "ตู้ 2") || shelf_get(0)->pos != 1 || shelf_get(0)->save_len) SFAIL("new tank: index %d '%s' at %d, %u bytes", b, shelf_get(0)->name, shelf_get(0)->pos, shelf_get(0)->save_len);
     if (!shelf_put_up(0)) SFAIL("swap to the new tank");
     int lived = shelf_reboot();
     if (lived >= 0) SFAIL("the new tank was not fresh (lived %d h)", lived);
@@ -1165,7 +1165,7 @@ static int selftest_shelf(void) {
     if (!shelf_rename(-1, "REEF") || strcmp(shelf_now()->name, "REEF")) SFAIL("rename the tank on the glass: '%s'", shelf_now()->name);
     shelf_reboot(); a = shelf_index_of(1);
     if (a < 0 || strcmp(shelf_get(a)->name, "SAM'S TANK") || strcmp(shelf_now()->name, "REEF") || !shelf_get(a)->save_len) SFAIL("names after a restart: '%s', '%s'", a >= 0 ? shelf_get(a)->name : "?", shelf_now()->name);
-    if (!shelf_rename(a, "   ") || strcmp(shelf_get(a)->name, "TANK 1")) SFAIL("an empty name: '%s' (want TANK 1)", shelf_get(a)->name);
+    if (!shelf_rename(a, "   ") || strcmp(shelf_get(a)->name, "ตู้ 1")) SFAIL("an empty name: '%s' (want ตู้ 1)", shelf_get(a)->name);
     if (!shelf_thumb(a, back, sizeof back / 2) || memcmp(back, s_thumb, (size_t)w * h * 2)) SFAIL("the snapshot did not survive a rename");
     if (!shelf_rename(a, " NIGHT \n REEF ") || strcmp(shelf_get(a)->name, "NIGHT\nREEF")) SFAIL("two lines: '%s'", shelf_get(a)->name);
     if (!shelf_rename(a, "\nREEF") || strcmp(shelf_get(a)->name, "REEF")) SFAIL("line 2 alone: '%s'", shelf_get(a)->name);
@@ -9976,7 +9976,7 @@ static int selftest_card(const char *prefix) {
         fry_req_t req[FRY_REQ_MAX]; bool staged; int n = progression_next_fry(&tank, req, &staged), feed = -1, met = 0;
         for (int i = 0; i < n; i++) { if (req[i].kind == FRY_REQ_FEED) feed = i; met += req[i].met; }
         if (feed < 0 || req[feed].met || met != n - 1 || staged) CARD_FAIL("after a sale only MEALS should be owed (%d of %d met, staged %d)", met, n, staged);
-        char want[28]; snprintf(want, sizeof want, "%d OF %d SO FAR", 150, 150 + SELL_FRY_MEALS);
+        char want[48]; snprintf(want, sizeof want, "%d จาก %d แล้ว", 150, 150 + SELL_FRY_MEALS);   /* (Thai: 3 bytes a character) */
         if (strcmp(req[feed].progress, want)) CARD_FAIL("the MEALS gate reads '%s', want '%s'", req[feed].progress, want);
     }
     for (int i = 0; i < 60 * 90; i++) {

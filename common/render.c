@@ -6414,7 +6414,7 @@ static void card_draw(ctx_t c, const tank_t *t, int fish_idx) {
        milestones page (and from there SETTINGS / UPGRADES), but nothing said
        so - a keeper asked Strato how to get there. The button is the sign;
        the hit box is still the card (touch ports, RENDER_CARD_H). */
-    button(&c, TX, Y + H - 8 - CARD_MORE_H, TW, CARD_MORE_H, 0x1c2f36, 0x9fd8e2, "MORE", UI_TEXT(2));
+    button(&c, TX, Y + H - 8 - CARD_MORE_H, TW, CARD_MORE_H, 0x1c2f36, 0x9fd8e2, "เพิ่มเติม", UI_TEXT(2));
 }
 
 /* ---- stats card cache (2026-09-01) ----
@@ -6445,12 +6445,12 @@ static void snail_card_draw(ctx_t *c, const tank_t *t) {
     rect_edge(c, X, Y, W, H, 0x9fd8e2); rect_edge(c, X + 1, Y + 1, W - 2, H - 2, 0x1c2f36);
     const icon_t *ic = &icon_snail_upright;
     blit_icon_scaled(c, X + (W - ic->w * UI_TEXT(2)) / 2, Y + UI(10), ic, UI_TEXT(2), true);
-    draw_text(c, X + (W - text_w("SNAIL", UI_TEXT(3))) / 2, Y + UI(82), UI_TEXT(3), 0xffffff, "SNAIL");
-    const char *cap = "ALGAE GRAZED SO FAR";
+    draw_text(c, X + (W - text_w("หอยทาก", UI_TEXT(3))) / 2, Y + UI(82), UI_TEXT(3), 0xffffff, "หอยทาก");
+    const char *cap = "กินตะไคร่ไปแล้ว";
     draw_text(c, X + (W - text_w(cap, UI_TEXT(2))) / 2, Y + UI(112), UI_TEXT(2), 0x9fd8e2, cap);
     char n[24];
-    if (t->snail_grazed <= 0) snprintf(n, sizeof n, "NOTHING YET");
-    else snprintf(n, sizeof n, "%d SPOT%s", (int)t->snail_grazed, t->snail_grazed == 1 ? "" : "S");
+    if (t->snail_grazed <= 0) snprintf(n, sizeof n, "ยังไม่มี");
+    else snprintf(n, sizeof n, "%d จุด", (int)t->snail_grazed);
     draw_text(c, X + (W - text_w(n, UI_TEXT(3))) / 2, Y + UI(134), UI_TEXT(3), 0xffffff, n);
 }
 
@@ -6487,33 +6487,33 @@ static void crab_card_draw(ctx_t *c, const tank_t *t) {
             src_t sc = src_color(CR_RGB[tone], 1.0f);
             for (int yy = 0; yy < S; yy++) span(c, ox + gx * S, ox + gx * S + S - 1, oy + gy * S + yy, &sc, 255);
         }
-    draw_text(c, X + (W - text_w("STRAWBERRY CRAB", UI_TEXT(3))) / 2, Y + UI(70), UI_TEXT(3), 0xffffff, "STRAWBERRY CRAB");
+    draw_text(c, X + (W - text_w("ปูสตรอว์เบอร์รี", UI_TEXT(3))) / 2, Y + UI(70), UI_TEXT(3), 0xffffff, "ปูสตรอว์เบอร์รี");
     {   /* two counts side by side: the pellets it found, the sand dollars it dug up (0.3.9) - what they paid, not how many finds (0.3.9.1) */
         const int L = X + W / 4, R = X + 3 * W / 4;
-        char n[16];
-        draw_text(c, L - text_w("PELLETS", UI_TEXT(2)) / 2, Y + UI(104), UI_TEXT(2), 0x9fd8e2, "PELLETS");
-        if (t->cr_eaten == 0) snprintf(n, sizeof n, "NONE YET"); else snprintf(n, sizeof n, "%u", (unsigned)t->cr_eaten);
+        char n[24];                                   /* (Thai: "ยังไม่มี" is 21 bytes) */
+        draw_text(c, L - text_w("อาหารเม็ด", UI_TEXT(2)) / 2, Y + UI(104), UI_TEXT(2), 0x9fd8e2, "อาหารเม็ด");
+        if (t->cr_eaten == 0) snprintf(n, sizeof n, "ยังไม่มี"); else snprintf(n, sizeof n, "%u", (unsigned)t->cr_eaten);
         draw_text(c, L - text_w(n, UI_TEXT(3)) / 2, Y + UI(126), UI_TEXT(3), 0xffffff, n);
-        draw_text(c, R - text_w("SAND DOLLARS", UI_TEXT(2)) / 2, Y + UI(104), UI_TEXT(2), 0x9fd8e2, "SAND DOLLARS");
-        if (t->cr_found == 0) snprintf(n, sizeof n, "NONE YET"); else snprintf(n, sizeof n, "%u", SD_CRAB_FINDS_VALUE(t->cr_found));
+        draw_text(c, R - text_w("เหรียญทราย", UI_TEXT(2)) / 2, Y + UI(104), UI_TEXT(2), 0x9fd8e2, "เหรียญทราย");
+        if (t->cr_found == 0) snprintf(n, sizeof n, "ยังไม่มี"); else snprintf(n, sizeof n, "%u", SD_CRAB_FINDS_VALUE(t->cr_found));
         draw_text(c, R - text_w(n, UI_TEXT(3)) / 2, Y + UI(126), UI_TEXT(3), 0xffffff, n);
     }
-    const char *now = t->cr_find > 0 ? "FOUND A SAND DOLLAR!"
-                    : t->cr_scurry ? "RUNNING FOR COVER"
-                    : (t->cr_mode == CR_ROOST && t->cr_hide > 0) ? (t->cr_cave == 2 ? "HIDING IN THE CASTLE" : "HIDING IN THE CAVE")
-                    : t->cr_mode == CR_ROOST ? (t->cr_cave == 2 ? "ROOSTING IN THE CASTLE" : t->cr_cave == 9 ? "ROOSTING IN THE CAVE" : "ROOSTING")
-                    : t->cr_mode == CR_SHELTER ? (t->cr_cave == 2 ? "OFF TO THE CASTLE" : "OFF TO THE CAVE")
-                    : t->cr_mode == CR_DIG ? "PICKING AT THE SAND"
-                    : t->cr_mode == CR_FEED ? "GOING FOR FOOD"
-                    : t->cr_mode == CR_EAT ? "EATING"
-                    : t->cr_mode == CR_CLIMB ? "CLIMBING THE VOLCANO"
-                    : t->cr_mode == CR_WALK ? "OUT FOR A WALK" : "RESTING";
+    const char *now = t->cr_find > 0 ? "เจอเหรียญทราย!"
+                    : t->cr_scurry ? "วิ่งหนีไปหลบ"
+                    : (t->cr_mode == CR_ROOST && t->cr_hide > 0) ? (t->cr_cave == 2 ? "หลบอยู่ในปราสาท" : "หลบอยู่ในถ้ำ")
+                    : t->cr_mode == CR_ROOST ? (t->cr_cave == 2 ? "เกาะพักในปราสาท" : t->cr_cave == 9 ? "เกาะพักในถ้ำ" : "เกาะพัก")
+                    : t->cr_mode == CR_SHELTER ? (t->cr_cave == 2 ? "มุ่งไปปราสาท" : "มุ่งไปถ้ำ")
+                    : t->cr_mode == CR_DIG ? "คุ้ยทราย"
+                    : t->cr_mode == CR_FEED ? "ไปหาอาหาร"
+                    : t->cr_mode == CR_EAT ? "กำลังกิน"
+                    : t->cr_mode == CR_CLIMB ? "ไต่ภูเขาไฟ"
+                    : t->cr_mode == CR_WALK ? "เดินเล่น" : "พักผ่อน";
     if (t->cr_find > 0) {                         /* COLLECT (0.3.9.4, Strato: a keeper who came by the arrows takes the find from here) */
         int bx, by, bw, bh; crab_collect_box(&bx, &by, &bw, &bh);
         button(c, bx, by, bw, bh, 0x9fd8e2, 0x9fd8e2, "", UI_TEXT(2));   /* (MSP_TEAL, lit; MSP_INK lettering - defined further down) */
-        const int tw = text_w("COLLECT", UI_TEXT(2)), lx = bx + (bw - 16 - UI(8) - tw) / 2;   /* (the 16 px coin keeps its size) */
+        const int tw = text_w("เก็บ", UI_TEXT(2)), lx = bx + (bw - 16 - UI(8) - tw) / 2;   /* (the 16 px coin keeps its size) */
         blit_icon(c, lx, by + (bh - 16) / 2, &icon_shop_sand_dollar_16, 255);
-        draw_text(c, lx + 16 + UI(8), by + (bh - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), 0x031015, "COLLECT");
+        draw_text(c, lx + 16 + UI(8), by + (bh - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), 0x031015, "เก็บ");
     } else draw_text(c, X + (W - text_w(now, UI_TEXT(2))) / 2, Y + UI(162), UI_TEXT(2), 0x9fd8e2, now);
 }
 static void urchin_card_draw(ctx_t *c, const tank_t *t) {
@@ -6531,20 +6531,20 @@ static void urchin_card_draw(ctx_t *c, const tank_t *t) {
             src_t sc = src_color(URCHIN_RGB[tone], 1.0f);
             for (int yy = 0; yy < S; yy++) span(c, ox + lx * S, ox + lx * S + S - 1, oy + ly * S + yy, &sc, 255);
         }
-    draw_text(c, X + (W - text_w("SEA URCHIN", UI_TEXT(3))) / 2, Y + UI(90), UI_TEXT(3), 0xffffff, "SEA URCHIN");
-    const char *cap = "GRASS GRAZED SO FAR";
+    draw_text(c, X + (W - text_w("เม่นทะเล", UI_TEXT(3))) / 2, Y + UI(90), UI_TEXT(3), 0xffffff, "เม่นทะเล");
+    const char *cap = "กินหญ้าไปแล้ว";
     draw_text(c, X + (W - text_w(cap, UI_TEXT(2))) / 2, Y + UI(118), UI_TEXT(2), 0x9fd8e2, cap);
     char n[24]; int cm = (int)(t->urchin_grazed_px / PX_PER_CM);
-    /* CM under a meter, then M with one decimal, KM past a kilometer (0.3.9,
-       Strato: "1.4K CM is odd"); the longest line, "999.9 M", fits the card */
-    if (cm < 1) snprintf(n, sizeof n, "NOTHING YET");
-    else if (cm < 100) snprintf(n, sizeof n, "%d CM", cm);
-    else if (cm < 100000) snprintf(n, sizeof n, "%d.%d M", cm / 100, cm % 100 / 10);
-    else snprintf(n, sizeof n, "%d.%d KM", cm / 100000, cm % 100000 / 10000);
+    /* ซม under a meter, then ม with one decimal, กม past a kilometer (0.3.9,
+       Strato: "1.4K CM is odd"); the longest line, "999.9 ม.", fits the card */
+    if (cm < 1) snprintf(n, sizeof n, "ยังไม่มี");
+    else if (cm < 100) snprintf(n, sizeof n, "%d ซม.", cm);
+    else if (cm < 100000) snprintf(n, sizeof n, "%d.%d ม.", cm / 100, cm % 100 / 10);
+    else snprintf(n, sizeof n, "%d.%d กม.", cm / 100000, cm % 100000 / 10000);
     draw_text(c, X + (W - text_w(n, UI_TEXT(3))) / 2, Y + UI(140), UI_TEXT(3), 0xffffff, n);
-    const char *now = tank_urchin_chewing(t) ? "CHEWING"
-                    : t->urchin_frond >= 0 ? "OFF TO THE TALL GRASS"
-                    : "RESTING";
+    const char *now = tank_urchin_chewing(t) ? "กำลังเคี้ยว"
+                    : t->urchin_frond >= 0 ? "ไปหญ้าสูง"
+                    : "พักผ่อน";
     draw_text(c, X + (W - text_w(now, UI_TEXT(2))) / 2, Y + UI(170), UI_TEXT(2), 0x9fd8e2, now);
 }
 
@@ -6574,12 +6574,12 @@ static void shrimp_card_draw(ctx_t *c, const tank_t *t) {
             int ti = (int)(k - SHRIMP_KEYS);
             for (int yy = 0; yy < S; yy++) span(c, sx + x * S, sx + x * S + S - 1, sy + y * S + yy, &pal[ti], SHRIMP_ALPHA[ti]);
         }
-    char line[32];
-    snprintf(line, sizeof line, "%d SHRIMP", n);
+    char line[64];                                      /* (Thai: three bytes a letter) */
+    snprintf(line, sizeof line, "กุ้ง %d ตัว", n);
     draw_text(c, X + (W - text_w(line, UI_TEXT(3))) / 2, Y + UI(46), UI_TEXT(3), 0xffffff, line);
-    snprintf(line, sizeof line, "%d PELLET%s EATEN", (int)t->shrimp_eaten, t->shrimp_eaten == 1 ? "" : "S");
+    snprintf(line, sizeof line, "กินอาหารเม็ด %d เม็ด", (int)t->shrimp_eaten);
     draw_text(c, X + (W - text_w(line, UI_TEXT(2))) / 2, Y + UI(76), UI_TEXT(2), 0x9fd8e2, line);
-    const char *cap = "NEXT SHRIMP";
+    const char *cap = "กุ้งตัวต่อไป";
     draw_text(c, X + (W - text_w(cap, UI_TEXT(2))) / 2, Y + UI(104), UI_TEXT(2), 0x9fd8e2, cap);
     bool full = n >= SHRIMP_MAX;
     int have = full ? SHRIMP_PER_JOIN : t->shrimp_food;
@@ -6591,14 +6591,14 @@ static void shrimp_card_draw(ctx_t *c, const tank_t *t) {
             fill_ellipse(c, x - UI(2), py - UI(2), 2.2f * UI_F, 2.2f * UI_F, 0xffe9bd, 255);
         } else ring(c, x, py, UI(6), 0x5a6a6e);
     }
-    if (full) snprintf(line, sizeof line, "THE SCHOOL IS FULL");
-    else if (tank_shrimp_refusing(t)) snprintf(line, sizeof line, "TOO MUCH ALGAE TO EAT");
+    if (full) snprintf(line, sizeof line, "ฝูงกุ้งเต็มแล้ว");
+    else if (tank_shrimp_refusing(t)) snprintf(line, sizeof line, "ตะไคร่มากเกินไป");
     else if (t->shrimp_food >= SHRIMP_PER_JOIN && t->shrimp_cool > 0) {
         int m = (int)ceilf(t->shrimp_cool / 60.0f);
-        snprintf(line, sizeof line, "ARRIVES IN %d MIN", m < 1 ? 1 : m);
+        snprintf(line, sizeof line, "อีก %d นาทีจะมา", m < 1 ? 1 : m);
     } else {
         int more = SHRIMP_PER_JOIN - t->shrimp_food;
-        snprintf(line, sizeof line, "%d MORE PELLET%s", more, more == 1 ? "" : "S");
+        snprintf(line, sizeof line, "อีก %d เม็ด", more);
     }
     draw_text(c, X + (W - text_w(line, UI_TEXT(2))) / 2, Y + UI(158), UI_TEXT(2), 0xffffff, line);
 }
@@ -6639,25 +6639,25 @@ static void seahorse_card_draw(ctx_t *c, const tank_t *t) {
 #else
     const int TX = X + UI(14) + SH_W * S + UI(12);   /* "+N.N TRUST PASSED ON" is 21 chars at scale 2: 252 px, inside the card from here */
 #endif
-    draw_text(c, TX, Y + UI(18), UI_TEXT(3), 0xffffff, "SEAHORSE");
-    char line[32];
+    draw_text(c, TX, Y + UI(18), UI_TEXT(3), 0xffffff, "ม้าน้ำ");
+    char line[64];                                         /* (Thai: three bytes a letter) */
     float days = tank_seahorse_days(t);
-    if (days < 1) snprintf(line, sizeof line, "WITH YOU SINCE TODAY");
-    else snprintf(line, sizeof line, "%d DAY%s WITH YOU", (int)days, (int)days == 1 ? "" : "S");
+    if (days < 1) snprintf(line, sizeof line, "อยู่ด้วยกันวันแรก");
+    else snprintf(line, sizeof line, "อยู่ด้วยกัน %d วัน", (int)days);
     draw_text(c, TX, Y + UI(52), UI_TEXT(2), 0x9fd8e2, line);
-    snprintf(line, sizeof line, "%d HITCH%s", (int)t->sh_hitches, t->sh_hitches == 1 ? "" : "ES");
+    snprintf(line, sizeof line, "เกาะตัว %d ครั้ง", (int)t->sh_hitches);
     draw_text(c, TX, Y + UI(76), UI_TEXT(2), 0xffffff, line);
-    snprintf(line, sizeof line, "+%d.%d TRUST PASSED ON", (int)t->sh_trust_passed, (int)(t->sh_trust_passed * 10) % 10);
+    snprintf(line, sizeof line, "+%d.%d ไว้ใจที่ส่งต่อ", (int)t->sh_trust_passed, (int)(t->sh_trust_passed * 10) % 10);
     draw_text(c, TX, Y + UI(100), UI_TEXT(2), 0xffffff, line);
-    snprintf(line, sizeof line, "%d PELLET%s SNAPPED", (int)t->sh_eaten, t->sh_eaten == 1 ? "" : "S");
+    snprintf(line, sizeof line, "งับเม็ด %d เม็ด", (int)t->sh_eaten);
     draw_text(c, TX, Y + UI(124), UI_TEXT(2), 0xffffff, line);
-    char now[32];
-    if (t->sh_hitched) snprintf(now, sizeof now, "ON YOUR FINGER");
-    else if (t->sh_mode == SH_HITCH) snprintf(now, sizeof now, "SWIMMING TO YOU");
-    else if (t->night && t->sh_mode == SH_PERCH) snprintf(now, sizeof now, "ASLEEP");   /* only once it holds on (0.3.7: it said ASLEEP on the finger) */
-    else if (t->sh_mode == SH_PERCH && t->sh_akind == SH_ANCHOR_SAND) snprintf(now, sizeof now, "RESTING ON THE SAND");
-    else if (t->sh_mode == SH_PERCH) snprintf(now, sizeof now, "HOLDING %s", tank_seahorse_holding(t));
-    else snprintf(now, sizeof now, "ADRIFT");
+    char now[64];                                          /* (Thai: three bytes a letter, and the holding line is two words) */
+    if (t->sh_hitched) snprintf(now, sizeof now, "เกาะนิ้วคุณ");
+    else if (t->sh_mode == SH_HITCH) snprintf(now, sizeof now, "ว่ายมาหาคุณ");
+    else if (t->night && t->sh_mode == SH_PERCH) snprintf(now, sizeof now, "หลับอยู่");   /* only once it holds on (0.3.7: it said ASLEEP on the finger) */
+    else if (t->sh_mode == SH_PERCH && t->sh_akind == SH_ANCHOR_SAND) snprintf(now, sizeof now, "พักบนทราย");
+    else if (t->sh_mode == SH_PERCH) snprintf(now, sizeof now, "เกาะ %s", tank_seahorse_holding(t));
+    else snprintf(now, sizeof now, "ล่องลอย");
     draw_text(c, TX, Y + UI(156), UI_TEXT(2), 0x9fd8e2, now);
 }
 
@@ -6851,7 +6851,8 @@ int render_tools_hit(float x, float y) {
 #define TOOL_CHIP_Y RENDER_CARD_Y
 #endif
 #define TOOL_CHIP_H 40
-static int tool_chip_w(void) { return 8 + 24 + 8 + text_w("DONE", 2) + 10; }
+#define TOOL_CHIP_WORD "เสร็จ"   /* (the Thai round: 49 px at scale 2, the latin DONE's 46) */
+static int tool_chip_w(void) { return 8 + 24 + 8 + text_w(TOOL_CHIP_WORD, 2) + 10; }
 void render_tool_chip(const tank_t *t, int fish_idx, uint16_t *fb, int stride) {
     if (t->tool == TOOL_HAND || (fish_idx >= 0 && fish_idx < t->n_fish)) return;
     /* a stroke on the glass: the chip steps aside until the finger lifts, so
@@ -6864,7 +6865,7 @@ void render_tool_chip(const tank_t *t, int fish_idx, uint16_t *fb, int stride) {
     rect_edge(&c, X, Y, W, H, 0xffffff); rect_edge(&c, X + 1, Y + 1, W - 2, H - 2, 0x9fd8e2);
     const icon_t *ic = t->tool == TOOL_SCISSORS ? &icon_tool_scissors : &icon_tool_sponge;
     blit_icon(&c, X + 8, Y + (H - ic->h) / 2, ic, 255);
-    draw_text(&c, X + 8 + ic->w + 8, Y + (H - 14) / 2, 2, 0xffffff, "DONE");
+    draw_text(&c, X + 8 + ic->w + 8, Y + (H - 14) / 2, 2, 0xffffff, TOOL_CHIP_WORD);
 }
 bool render_tool_chip_hit(const tank_t *t, float x, float y) {
     return t->tool != TOOL_HAND && x < TOOL_CHIP_X + tool_chip_w() + 16 && y < TOOL_CHIP_Y + TOOL_CHIP_H + 24;
@@ -7207,7 +7208,7 @@ int render_line_pitch(const char *above, const char *below, int scale, int pitch
     text_span(above, scale, NULL, &dn);
     text_span(below, scale, &up, NULL);
     int air = pitch - 7 * scale;
-    if (air < 2) air = 2;
+    if (air < 3) air = 3;                     /* (2026-11-27, the Thai round: 2 px of air read as touching) */
     int need = dn + up + air;
     return need > pitch ? need : pitch;
 }
@@ -7336,14 +7337,15 @@ void render_confirm_reset(uint16_t *fb, int stride, float frac) {
     const int X = RENDER_CONFIRM_X, Y = RENDER_CONFIRM_Y, W = RENDER_CONFIRM_W, H = RENDER_CONFIRM_H;
     rect_fill(&c, X, Y, W, H, 0x04141a);
     rect_edge(&c, X, Y, W, H, 0x9fd8e2); rect_edge(&c, X + 1, Y + 1, W - 2, H - 2, 0x1c2f36);
-    const char *title = "RESET TANK?";
+    const char *title = "รีเซ็ตตู้ปลา?";
     draw_text(&c, X + (W - text_w(title, UI_TEXT(3))) / 2, Y + UI(20), UI_TEXT(3), 0xffffff, title);
-    const char *l1 = "START OVER WITH TWO FRY", *l2 = "EVERYTHING ELSE IS LOST";
-    draw_text(&c, X + (W - text_w(l1, UI_TEXT(2))) / 2, Y + UI(58), UI_TEXT(2), 0x9fd8e2, l1);
-    draw_text(&c, X + (W - text_w(l2, UI_TEXT(2))) / 2, Y + UI(78), UI_TEXT(2), 0x9fd8e2, l2);
+    const char *l1 = "เริ่มใหม่ด้วยลูกปลาสองตัว", *l2 = "ทุกอย่างอื่นหายหมด";
+    const int y1 = Y + UI(58);
+    draw_text(&c, X + (W - text_w(l1, UI_TEXT(2))) / 2, y1, UI_TEXT(2), 0x9fd8e2, l1);
+    draw_text(&c, X + (W - text_w(l2, UI_TEXT(2))) / 2, y1 + render_line_pitch(l1, l2, UI_TEXT(2), UI(20)), UI_TEXT(2), 0x9fd8e2, l2);
     /* NO is the calm one; YES wears the stress red */
-    button(&c, RENDER_CONFIRM_NO_X,  RENDER_CONFIRM_BTN_Y, RENDER_CONFIRM_BTN_W, RENDER_CONFIRM_BTN_H, 0x1c2f36, 0x9fd8e2, "NO", UI_TEXT(3));
-    button(&c, RENDER_CONFIRM_YES_X, RENDER_CONFIRM_BTN_Y, RENDER_CONFIRM_BTN_W, RENDER_CONFIRM_BTN_H, 0x7a2028, 0xf25b65, "YES", UI_TEXT(3));
+    button(&c, RENDER_CONFIRM_NO_X,  RENDER_CONFIRM_BTN_Y, RENDER_CONFIRM_BTN_W, RENDER_CONFIRM_BTN_H, 0x1c2f36, 0x9fd8e2, "ไม่", UI_TEXT(3));
+    button(&c, RENDER_CONFIRM_YES_X, RENDER_CONFIRM_BTN_Y, RENDER_CONFIRM_BTN_W, RENDER_CONFIRM_BTN_H, 0x7a2028, 0xf25b65, "ใช่", UI_TEXT(3));
     /* the prompt lets itself go: a bar draining toward the timeout */
     if (frac < 0) frac = 0;
     if (frac > 1) frac = 1;
@@ -7370,19 +7372,19 @@ int render_confirm_hit(float x, float y) {
 void render_battery_info(uint16_t *fb, int stride, const bat_info_t *bi, float clock) {
     ctx_t c = ctx_full(fb, stride, 1.0f);
     bool pw = BAT_ON_POWER(bi->state);
-    char lab[3][16], val[3][32], d[16]; int nr = 0;
+    char lab[3][40], val[3][48], d[16]; int nr = 0;   /* (Thai: three bytes a letter) */
     if (bi->since_min >= 0) {
-        snprintf(lab[nr], sizeof lab[nr], pw ? "PLUGGED IN" : "UNPLUGGED");
-        if (bi->since_min < 1) snprintf(val[nr], sizeof val[nr], "JUST NOW");
-        else { battery_fmt_dur(d, sizeof d, bi->since_min); snprintf(val[nr], sizeof val[nr], "%s AGO", d); }
+        snprintf(lab[nr], sizeof lab[nr], pw ? "เสียบสายอยู่" : "ไม่เสียบสาย");
+        if (bi->since_min < 1) snprintf(val[nr], sizeof val[nr], "เมื่อกี้");
+        else { battery_fmt_dur(d, sizeof d, bi->since_min); snprintf(val[nr], sizeof val[nr], "%s ที่แล้ว", d); }
         nr++;
     }
     if (!pw && bi->awake_min >= 0) {
-        snprintf(lab[nr], sizeof lab[nr], "SCREEN ON");
+        snprintf(lab[nr], sizeof lab[nr], "เปิดจอมา");
         battery_fmt_dur(val[nr], sizeof val[nr], bi->awake_min); nr++;
     }
     if (bi->life_min > 0) {
-        snprintf(lab[nr], sizeof lab[nr], "BATTERY LIFE");
+        snprintf(lab[nr], sizeof lab[nr], "เต็มแล้วอยู่ได้");
         battery_fmt_dur(d, sizeof d, bi->life_min); snprintf(val[nr], sizeof val[nr], "~%s", d); nr++;
     }
     const int W = 336, H = (bi->mv > 0 ? 170 : 154) + nr * 26, X = (TANK_W - W) / 2, Y = (TANK_H - H) / 2;
@@ -7397,15 +7399,15 @@ void render_battery_info(uint16_t *fb, int stride, const bat_info_t *bi, float c
     draw_battery(&c, gx + bolt, gy, BW, BH, 2, bi->pct / 100.0f, bi->state, clock);
     draw_text(&c, gx + bolt + BW + 6 + 20, gy + (BH - 7 * TS) / 2, TS, 0xffffff, pct);
     /* the state, then what it means in time */
-    const char *st = bi->state == BAT_CHARGING ? "CHARGING" : bi->state == BAT_FULL ? "FULLY CHARGED"
-                   : bi->state == BAT_PLUGGED ? "PLUGGED IN" : "ON BATTERY";
+    const char *st = bi->state == BAT_CHARGING ? "กำลังชาร์จ" : bi->state == BAT_FULL ? "ชาร์จเต็ม"
+                   : bi->state == BAT_PLUGGED ? "เสียบสายอยู่" : "ใช้แบตอยู่";
     draw_text(&c, X + (W - text_w(st, 3)) / 2, Y + 78, 3, 0xffffff, st);
-    char est[48];
-    if (bi->state == BAT_CHARGING) { battery_fmt_dur(d, sizeof d, bi->left_min); snprintf(est, sizeof est, "FULL IN ABOUT %s", d); }
-    else if (bi->state == BAT_FULL) snprintf(est, sizeof est, "READY TO UNPLUG");
-    else if (bi->state == BAT_PLUGGED) snprintf(est, sizeof est, "NOT CHARGING RIGHT NOW");
-    else if (bi->left_min < 5) snprintf(est, sizeof est, "ALMOST EMPTY");
-    else { battery_fmt_dur(d, sizeof d, bi->left_min); snprintf(est, sizeof est, "ABOUT %s LEFT", d); }
+    char est[64];
+    if (bi->state == BAT_CHARGING) { battery_fmt_dur(d, sizeof d, bi->left_min); snprintf(est, sizeof est, "เต็มในราว %s", d); }
+    else if (bi->state == BAT_FULL) snprintf(est, sizeof est, "ถอดสายได้เลย");
+    else if (bi->state == BAT_PLUGGED) snprintf(est, sizeof est, "ยังไม่ชาร์จตอนนี้");
+    else if (bi->left_min < 5) snprintf(est, sizeof est, "แบตใกล้หมด");
+    else { battery_fmt_dur(d, sizeof d, bi->left_min); snprintf(est, sizeof est, "เหลือราว %s", d); }
     draw_text(&c, X + (W - text_w(est, 2)) / 2, Y + 110, 2, 0x9fd8e2, est);
     rect_fill(&c, X + 20, Y + 138, W - 40, 1, 0x1c2f36);
     for (int i = 0; i < nr; i++) {
@@ -7487,12 +7489,12 @@ static const badge_t *tank_badge(const tank_t *t, int k) {
     return &TANK_BADGES[0];
 }
 static int tank_pages(const tank_t *t) { return (tank_badge_n(t) + MSP_PER_ROW - 1) / MSP_PER_ROW; }
-static const char *const STAGE_WORDS[4] = { "FRY", "JUVENILE", "ADULT", "ELDER" };
+static const char *const STAGE_WORDS[4] = { "ลูกปลา", "ปลาวัยรุ่น", "ปลาโตเต็มวัย", "ปลาเฒ่า" };   /* (2026-11-27, the Thai round) */
 /* the detail modal (a tap on a badge / name / strip): what to show until
  * the next tap. caption[0] == 0 means no modal. */
-static char g_ms_caption[72], g_ms_title[16];
-static char g_ms_caption2[32];       /* the caption's second line (the fry checklist's sentences), or empty */
-static char g_ms_sub[32];            /* a line under the caption (the fry checklist's progress), or empty */
+static char g_ms_caption[72], g_ms_title[40];   /* (the title is Thai since 2026-11-27: a gate's is 27 bytes, the fry row's 30) */
+static char g_ms_caption2[72];       /* the caption's second line (the fry checklist's sentences), or empty */
+static char g_ms_sub[64];            /* a line under the caption (the fry checklist's progress), or empty */
 static bool g_ms_lit;
 static const icon_t *g_ms_icon;      /* the badge's art, or NULL */
 static int  g_ms_fish = -1;          /* a fish's own sprite instead, or -1 */
@@ -7712,7 +7714,7 @@ void render_milestones(const tank_t *t, uint16_t *fb, int stride) {
         int top = MSP_ROW_Y0 + t->n_fish * MSP_ROW_H;
         uint32_t fry_rgb = staged ? MSP_TEAL : MSP_DIM;
         render_fish_preview(fb, stride, MSP_FISH_X, top + MSP_ROW_MID, 0.55f * UI_F, fry_rgb, fry_rgb, fry_rgb, t->clock);
-        draw_text(&c, MSP_NAME_X, top + UI(2), UI_TEXT(2), MSP_TEAL, "NEW FRY");
+        draw_text(&c, MSP_NAME_X, top + UI(2), UI_TEXT(2), MSP_TEAL, "ลูกใหม่");   /* (the Thai round: "ลูกปลาใหม่" is 59 px in the 52 a CYD row leaves before the badges, 118 of 84 on the rectangle - the modal's title has the room for it) */
         for (int k = 0; k < nreq; k++)           /* one tick per gate, lit when met */
             rect_fill(&c, MSP_NAME_X + UI(4) + k * UI(14), top + MSP_ROW_STRIP - UI(3), UI(10), UI(6), req[k].met ? MSP_TEAL : MSP_DIM);
         for (int k = 0; k < nreq; k++) {
@@ -7734,7 +7736,7 @@ void render_milestones(const tank_t *t, uint16_t *fb, int stride) {
         char bal[16]; snprintf(bal, sizeof bal, "%d", (int)t->sd_balance);
         draw_text(&c, MSP_SD_X + (MSP_ICON - text_w(bal, UI_TEXT(2))) / 2, MSP_TANK_Y + MSP_ICON + 2, UI_TEXT(2), 0xffffff, bal);
     }
-    draw_text(&c, MSP_NAME_X, MSP_TANK_Y + UI(2), UI_TEXT(2), MSP_TEAL, "TANK");
+    draw_text(&c, MSP_NAME_X, MSP_TANK_Y + UI(2), UI_TEXT(2), MSP_TEAL, "ตู้ปลา");
     for (int k = 0; k < POP_CAP; k++)        /* population strip: who is here, who could still arrive */
         fish_glyph(&c, MSP_NAME_X + UI(4) + k * UI(14), MSP_TANK_Y + UI(30), 2.8f * UI_F, k < t->n_fish ? MSP_TEAL : MSP_DIM);
     int nb = tank_badge_n(t), np = tank_pages(t);
@@ -7760,9 +7762,9 @@ void render_milestones(const tank_t *t, uint16_t *fb, int stride) {
     }
     /* the way out: a CLOSE button in the prompt's calm dress (a tap anywhere
        else never drops the page - too much to tap for that) */
-    button(&c, MSP_FOOT_CLOSE_X, MSP_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "CLOSE", UI_TEXT(2));   /* (the foot: render.h MSP_FOOT_Y, pinned to the bottom) */
-    button(&c, MSP_FOOT_UPG_X, MSP_FOOT_Y, MSP_UPG_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "UPGRADES", UI_TEXT(2));   /* the shop: bottom left (the bowl: left of CLOSE) */
-    button(&c, MSP_FOOT_SET_X, PAGE_BOWL ? MSP_SET_Y : MSP_FOOT_Y, MSP_SET_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "SETTINGS", UI_TEXT(2));   /* between them (Strato, 2026-10-24: swapped with
+    button(&c, MSP_FOOT_CLOSE_X, MSP_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "ปิด", UI_TEXT(2));   /* (the foot: render.h MSP_FOOT_Y, pinned to the bottom) */
+    button(&c, MSP_FOOT_UPG_X, MSP_FOOT_Y, MSP_UPG_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "อัปเกรด", UI_TEXT(2));   /* the shop: bottom left (the bowl: left of CLOSE) */
+    button(&c, MSP_FOOT_SET_X, PAGE_BOWL ? MSP_SET_Y : MSP_FOOT_Y, MSP_SET_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "ตั้งค่า", UI_TEXT(2));   /* between them (Strato, 2026-10-24: swapped with
                                                                                                         UPGRADES, bottom left since 2026-09-15; the bowl's sits in the cap) */
     /* a modal up: the page under it is out of reach (any tap only closes the
        modal), so it LOOKS out of reach - every pixel at half (Strato: with
@@ -7778,12 +7780,17 @@ void render_milestones(const tank_t *t, uint16_t *fb, int stride) {
         const int X = MSP_MODAL_X, Y = MSP_FRY_MODAL_Y, W = MSP_MODAL_W;
         const char *const *tip = progression_fry_tip(g_ms_kind);
         int n = 0; while (tip[n]) n++;
-        const int H = UI(56) + n * UI(20) + UI(16);
+        int steps = 0;                      /* the lines' own steps: a Thai line is deeper than UI(20) */
+        for (int i = 0; i + 1 < n; i++) steps += render_line_pitch(tip[i], tip[i + 1], UI_TEXT(2), UI(20));
+        const int H = UI(56) + steps + (n ? UI(20) : 0) + UI(16);
         rect_fill(&c, X, Y, W, H, 0x04141a);
         rect_edge(&c, X, Y, W, H, MSP_TEAL); rect_edge(&c, X + 1, Y + 1, W - 2, H - 2, 0x1c2f36);
-        char title[24]; snprintf(title, sizeof title, "%s: HOW", g_ms_title);
+        char title[64]; snprintf(title, sizeof title, "%s: วิธีทำ", g_ms_title);
         draw_text(&c, X + (W - text_w(title, UI_TEXT(3))) / 2, Y + UI(16), UI_TEXT(3), 0xffffff, title);
-        for (int i = 0; i < n; i++) draw_text(&c, X + (W - text_w(tip[i], UI_TEXT(2))) / 2, Y + UI(56) + i * UI(20), UI_TEXT(2), MSP_TEAL, tip[i]);
+        for (int i = 0, ly = Y + UI(56); i < n; i++) {
+            draw_text(&c, X + (W - text_w(tip[i], UI_TEXT(2))) / 2, ly, UI_TEXT(2), MSP_TEAL, tip[i]);
+            if (i + 1 < n) ly += render_line_pitch(tip[i], tip[i + 1], UI_TEXT(2), UI(20));
+        }
     } else if (g_ms_caption[0]) {
         const int X = MSP_MODAL_X, W = MSP_MODAL_W;
         const int Y = ms_modal_y(t), H = ms_modal_h(t);
@@ -7796,27 +7803,27 @@ void render_milestones(const tank_t *t, uint16_t *fb, int stride) {
             if (!can) g_ms_sell_armed = false; else g_ms_sell_asked = false;
             snprintf(g_ms_title, sizeof g_ms_title, "%s", f->name);
             snprintf(g_ms_caption, sizeof g_ms_caption, "%s", STAGE_WORDS[f->stage & 3]);
-            if (g_ms_sell_armed) snprintf(g_ms_sub, sizeof g_ms_sub, "TAP AGAIN TO SELL");
-            else if (can) snprintf(g_ms_sub, sizeof g_ms_sub, "WORTH %d SAND DOLLARS", worth);
-            else if (g_ms_sell_asked) snprintf(g_ms_sub, sizeof g_ms_sub, t->n_fish <= FISH_KEEP_MIN ? "KEEP AT LEAST TWO FISH" : "NAME THE NEW FRY FIRST");
+            if (g_ms_sell_armed) snprintf(g_ms_sub, sizeof g_ms_sub, "แตะอีกครั้งเพื่อขาย");
+            else if (can) snprintf(g_ms_sub, sizeof g_ms_sub, "ขายได้ %d เหรียญทราย", worth);
+            else if (g_ms_sell_asked) snprintf(g_ms_sub, sizeof g_ms_sub, t->n_fish <= FISH_KEEP_MIN ? "เหลือปลาอย่างน้อยสองตัว" : "ตั้งชื่อลูกปลาใหม่ก่อน");
             else g_ms_sub[0] = 0;                  /* (the line's room stays: the buttons never move) */
         }
         rect_fill(&c, X, Y, W, H, 0x04141a);
         rect_edge(&c, X, Y, W, H, MSP_TEAL); rect_edge(&c, X + 1, Y + 1, W - 2, H - 2, 0x1c2f36);
         if (g_ms_kind >= 0)                        /* the way further in: HOW?, centred at the foot (Strato: bottom
                                                       right sat too close to CLOSE for comfort) */
-            button(&c, X + (W - MSP_HOW_W) / 2, Y + H - UI(10) - MSP_HOW_H, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, "HOW?", UI_TEXT(2));
+            button(&c, X + (W - MSP_HOW_W) / 2, Y + H - UI(10) - MSP_HOW_H, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, "วิธีทำ", UI_TEXT(2));
         if (card) {
             const int by = ms_card_btn_y(t);
-            button(&c, ms_card_btn_x(0), by, MSP_CARD_BTN_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, "RENAME", UI_TEXT(2));
+            button(&c, ms_card_btn_x(0), by, MSP_CARD_BTN_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, "เปลี่ยนชื่อ", UI_TEXT(2));
             if (!progression_fish_sellable(t, g_ms_row)) {           /* not for sale: the button in the page's dim ink, the words too */
                 rect_fill(&c, ms_card_btn_x(1), by, MSP_CARD_BTN_W, MSP_HOW_H, 0x04141a);
                 rect_edge(&c, ms_card_btn_x(1), by, MSP_CARD_BTN_W, MSP_HOW_H, MSP_DIM);
-                draw_text(&c, ms_card_btn_x(1) + (MSP_CARD_BTN_W - text_w("SELL", UI_TEXT(2))) / 2, by + (MSP_HOW_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_QUIET, "SELL");
+                draw_text(&c, ms_card_btn_x(1) + (MSP_CARD_BTN_W - text_w("ขาย", UI_TEXT(2))) / 2, by + (MSP_HOW_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_QUIET, "ขาย");
             } else if (g_ms_sell_armed) {
-                char ok[16]; snprintf(ok, sizeof ok, "+%d OK?", progression_fish_value(t, g_ms_row));
+                char ok[24]; snprintf(ok, sizeof ok, "+%d เอา", progression_fish_value(t, g_ms_row));
                 button(&c, ms_card_btn_x(1), by, MSP_CARD_BTN_W, MSP_HOW_H, 0x155e58, 0x38dcc7, ok, UI_TEXT(2));
-            } else button(&c, ms_card_btn_x(1), by, MSP_CARD_BTN_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, "SELL", UI_TEXT(2));
+            } else button(&c, ms_card_btn_x(1), by, MSP_CARD_BTN_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, "ขาย", UI_TEXT(2));
         }
         if (g_ms_icon) blit_icon_scaled(&c, X + (W - g_ms_icon->w * UI_TEXT(2)) / 2, Y + UI(16) + (UI(32) - g_ms_icon->w * UI_TEXT(2) / 2), g_ms_icon, UI_TEXT(2), g_ms_lit);
         else if (g_ms_fish >= 0 && g_ms_fish < t->n_fish) {
@@ -7921,13 +7928,13 @@ static int ms_open(const tank_t *t, int row, bool tank_row, bool fry_row, int k,
     if (fry_row) {
         if (k < 0) {                                 /* the name: the tally, and when it comes */
             int met = 0; for (int i = 0; i < nreq; i++) met += req[i].met;
-            snprintf(g_ms_title, sizeof g_ms_title, "NEW FRY");
-            if (staged) { snprintf(g_ms_caption, sizeof g_ms_caption, "EVERY STEP IS DONE. A FRY");   /* the spawning, 2026-09-24 */
-                          snprintf(g_ms_caption2, sizeof g_ms_caption2, "WILL BE BORN IN THE GRASS");
-                          snprintf(g_ms_sub, sizeof g_ms_sub, "ON ITS WAY"); }
-            else { snprintf(g_ms_caption, sizeof g_ms_caption, "WHEN ALL NEEDS ARE MET, A");     /* Strato's words, 2026-09-14 */
-                   snprintf(g_ms_caption2, sizeof g_ms_caption2, "NEW FRY IS READY TO BE BORN");
-                   snprintf(g_ms_sub, sizeof g_ms_sub, "%d OF %d DONE", met, nreq); }
+            snprintf(g_ms_title, sizeof g_ms_title, "ลูกปลาใหม่");
+            if (staged) { snprintf(g_ms_caption, sizeof g_ms_caption, "ครบทุกข้อแล้ว ลูกปลา");   /* the spawning, 2026-09-24 */
+                          snprintf(g_ms_caption2, sizeof g_ms_caption2, "จะเกิดในแปลงหญ้า");
+                          snprintf(g_ms_sub, sizeof g_ms_sub, "กำลังจะมา"); }
+            else { snprintf(g_ms_caption, sizeof g_ms_caption, "เมื่อทำครบทุกข้อ");     /* Strato's words, 2026-09-14 */
+                   snprintf(g_ms_caption2, sizeof g_ms_caption2, "ลูกปลาใหม่พร้อมเกิด");
+                   snprintf(g_ms_sub, sizeof g_ms_sub, "%d จาก %d ข้อแล้ว", met, nreq); }
             g_ms_lit = staged; g_ms_icon = NULL; g_ms_fish = -1; g_ms_fry = true;
         } else if (k < nreq) {                       /* a gate: the words, and where it stands */
             const fry_req_t *r = &req[k];
@@ -7940,13 +7947,13 @@ static int ms_open(const tank_t *t, int row, bool tank_row, bool fry_row, int k,
         } else return MS_TAP_NONE;
     } else if (tank_row) {
         if (k < 0) {
-            snprintf(g_ms_title, sizeof g_ms_title, "TANK");
-            snprintf(g_ms_caption, sizeof g_ms_caption, "%d OF %d FISH SO FAR", t->n_fish, POP_CAP);
+            snprintf(g_ms_title, sizeof g_ms_title, "ตู้ปลา");
+            snprintf(g_ms_caption, sizeof g_ms_caption, "%d จาก %d ตัวแล้ว", t->n_fish, POP_CAP);
             g_ms_lit = true; g_ms_icon = NULL; g_ms_fish = -1;
         } else {
             uint32_t bit = tank_badge(t, k)->bit; bool on = (t->tank_ms_bits & bit) != 0;
             g_ms_tpage = k / MSP_PER_ROW;            /* the arrows can cross pages: the row follows */
-            snprintf(g_ms_title, sizeof g_ms_title, on ? "TANK" : "NOT YET");
+            snprintf(g_ms_title, sizeof g_ms_title, on ? "ตู้ปลา" : "ยังไม่มี");
             snprintf(g_ms_caption, sizeof g_ms_caption, "%s", TMS_NAMES[bit_index(bit)]);
             g_ms_lit = on; g_ms_icon = tank_badge(t, k)->icon; g_ms_fish = -1;
         }
@@ -7958,7 +7965,7 @@ static int ms_open(const tank_t *t, int row, bool tank_row, bool fry_row, int k,
             g_ms_lit = true; g_ms_icon = NULL; g_ms_fish = row;
         } else {
             uint32_t bit = FISH_BADGES[k].bit; bool on = (f->ms_bits & bit) != 0;
-            snprintf(g_ms_title, sizeof g_ms_title, "%s", on ? f->name : "NOT YET");
+            snprintf(g_ms_title, sizeof g_ms_title, "%s", on ? f->name : "ยังไม่มี");
             snprintf(g_ms_caption, sizeof g_ms_caption, "%s", MS_NAMES[bit_index(bit)]);
             g_ms_lit = on; g_ms_icon = FISH_BADGES[k].icon; g_ms_fish = -1;
         }
@@ -8010,34 +8017,36 @@ void render_notice(const tank_t *t, uint16_t *fb, int stride, int kind, int fish
     const int X = MSP_MODAL_X, W = MSP_MODAL_W, Y = MSP_MODAL_Y, H = MSP_MODAL_H;
     rect_fill(&c, X, Y, W, H, 0x04141a);
     rect_edge(&c, X, Y, W, H, MSP_TEAL); rect_edge(&c, X + 1, Y + 1, W - 2, H - 2, 0x1c2f36);
-    char title[FISH_NAME_MAX + 16] = "THE TANK", caption[40] = "";
+    char title[64] = "ตู้ปลา", caption[128] = "";
     const char *caption2 = NULL;                              /* a second line: the title and both move up */
     const icon_t *ic = NULL;
     const fish_t *f = fish >= 0 && fish < t->n_fish ? &t->fish[fish] : NULL;
     if (kind == 6 || kind == 7) {                             /* NOTICE_MODEL_DAMAGED (2026-10-21): the AI model is damaged; */
         if (kind == 7) {                                      /* NOTICE_WRONG_BOARD (0.3.9.3): this version is another board's */
             const char *w = pt_board_words(board_port_hw());
-            snprintf(title, sizeof title, "WRONG VERSION");
-            snprintf(caption, sizeof caption, "THIS IS THE %s", w ? w : "BOARD");
-            caption2 = "CHECK FOR UPDATES FIXES IT";
+            snprintf(title, sizeof title, "เวอร์ชันผิด");
+            snprintf(caption, sizeof caption, "นี่คือรุ่นของ %s", w ? w : "บอร์ดอื่น");
+            caption2 = "อัปเดตซอฟต์แวร์จะแก้ให้";
         } else {
-            snprintf(title, sizeof title, "AI MODEL DAMAGED");
-            snprintf(caption, sizeof caption, "REINSTALL AT POCKETANK.COM");
-            caption2 = "YOUR FISH ARE SAFE";
+            snprintf(title, sizeof title, "โมเดล AI เสียหาย");
+            snprintf(caption, sizeof caption, "ติดตั้งใหม่ที่ pocketank.com");
+            caption2 = "ปลาของคุณยังปลอดภัย";
         }
-        /* a warning triangle with an exclamation mark: the shape says it, not the hue */
-        const int TH = 34, PX = X + W / 2, PY = Y + 14;      /* apex at the top, base TH below */
+        /* a warning triangle with an exclamation mark: the shape says it, not the hue.
+           UI(): on a 320 x 240 page the title's y is scaled and 34 px of triangle would
+           run into it (the base sat on the title's first row) */
+        const int TH = UI(34), PX = X + W / 2, PY = Y + 14;   /* apex at the top, base TH below */
         for (int r = 0; r <= TH; r++) {
             int half = r * 20 / TH;
             rect_fill(&c, PX - half, PY + r, 2, 1, MSP_TEAL); rect_fill(&c, PX + half - 1, PY + r, 2, 1, MSP_TEAL);
         }
         rect_fill(&c, PX - 20, PY + TH - 1, 41, 2, MSP_TEAL);
-        rect_fill(&c, PX - 1, PY + 11, 3, 13, MSP_TEAL);      /* ! */
-        rect_fill(&c, PX - 1, PY + 27, 3, 3, MSP_TEAL);
+        rect_fill(&c, PX - 1, PY + TH * 11 / 34, 3, TH * 13 / 34, MSP_TEAL);   /* ! */
+        rect_fill(&c, PX - 1, PY + TH * 27 / 34, 3, 3, MSP_TEAL);
     } else if (kind == 5) {                                   /* NOTICE_LIGHTS_OUT (2026-10-03): the first double-tap that turned the light off */
-        snprintf(title, sizeof title, "LIGHTS OUT");
-        snprintf(caption, sizeof caption, "YOU DOUBLE-TAPPED THE GLASS");
-        caption2 = "DOUBLE-TAP TO TURN IT ON";
+        snprintf(title, sizeof title, "ปิดไฟแล้ว");
+        snprintf(caption, sizeof caption, "คุณแตะจอสองครั้ง");
+        caption2 = "แตะสองครั้งเพื่อเปิดไฟ";
         /* a crescent moon: a disc with a bite out of it */
         const int R = UI(20), PX = X + W / 2 - UI(3), PY = Y + UI(36), BR = UI(17);
         for (int dy = -R; dy <= R; dy++) for (int dx = -R; dx <= R; dx++) {
@@ -8045,16 +8054,16 @@ void render_notice(const tank_t *t, uint16_t *fb, int stride, int kind, int fish
             if (dx * dx + dy * dy <= R * R && bx * bx + by * by > BR * BR) rect_fill(&c, PX + dx, PY + dy, 1, 1, MSP_TEAL);
         }
     } else if (kind == 4) {                                   /* NOTICE_UPDATED (2026-09-30): the first boot of a new release */
-        snprintf(title, sizeof title, "UPDATED");
-        snprintf(caption, sizeof caption, "YOUR TANK IS NOW V%s", PT_RELEASE);
+        snprintf(title, sizeof title, "อัปเดตแล้ว");
+        snprintf(caption, sizeof caption, "ตู้ปลาของคุณเป็น V%s", PT_RELEASE);
         /* a tick in a ring, teal: the shape says it, not the hue */
         const int R = UI(22), PX = X + W / 2, PY = Y + UI(48);
         ring(&c, PX, PY, R, MSP_TEAL); ring(&c, PX, PY, R - 1, MSP_TEAL);
         for (int i = 0; i < UI(6); i++)  rect_fill(&c, PX - UI(11) + i, PY + i - 1, UI(3), UI(3), MSP_TEAL);
         for (int i = 0; i < UI(12); i++) rect_fill(&c, PX - UI(6) + i, PY + UI(4) - i, UI(3), UI(3), MSP_TEAL);
     } else if (kind == 3) {                                   /* NOTICE_LOW_BATTERY */
-        snprintf(title, sizeof title, "LOW BATTERY");
-        snprintf(caption, sizeof caption, "PLEASE CHARGE THE TANK");
+        snprintf(title, sizeof title, "แบตใกล้หมด");
+        snprintf(caption, sizeof caption, "กรุณาชาร์จตู้ปลา");
         /* the pill, large: outline + nub, the last sliver lit red */
         const int PW = UI(60), PH = UI(28), PX = X + (W - PW) / 2, PY = Y + UI(34);
         rect_edge(&c, PX, PY, PW, PH, 0x9fb4b8); rect_edge(&c, PX + 1, PY + 1, PW - 2, PH - 2, 0x9fb4b8);
@@ -8062,13 +8071,13 @@ void render_notice(const tank_t *t, uint16_t *fb, int stride, int kind, int fish
         rect_fill(&c, PX + UI(4), PY + UI(4), UI(7), PH - UI(8), 0xf25b65);
     } else if (kind == 2) {                                   /* NOTICE_STAGE */
         if (f) { snprintf(title, sizeof title, "%s", f->name);
-                 snprintf(caption, sizeof caption, "IS NOW %s %s", f->stage == STAGE_ADULT || f->stage == STAGE_ELDER ? "AN" : "A", STAGE_WORDS[f->stage & 3]);
+                 snprintf(caption, sizeof caption, "โตเป็น%sแล้ว", STAGE_WORDS[f->stage & 3]);
                  render_fish_preview(fb, stride, X + W / 2, Y + UI(48), f->size * 1.6f * UI_F, f->color, f->fin, f->accent, t->clock); }
     } else if (kind == 1) {                                   /* NOTICE_TANK_MILESTONE */
         for (int k = 0; k < TANK_BADGE_N; k++) if (TANK_BADGES[k].bit == bit) ic = TANK_BADGES[k].icon;
         int bi = 0; while (bi < 31 && !(bit & (1u << bi))) bi++;
         snprintf(caption, sizeof caption, "%s", bi < TMS_COUNT ? TMS_NAMES[bi] : "");
-        if (bit == TMS_FIRST_SALE) caption2 = "FRY NOW IN THE SHOP";   /* what the sale opened (0.3.5) */
+        if (bit == TMS_FIRST_SALE) caption2 = "ลูกปลาอยู่ในร้านแล้ว";   /* what the sale opened (0.3.5) */
         if (!ic && t->n_fish) {                               /* a population milestone: the newest fish */
             const fish_t *n = &t->fish[t->n_fish - 1];
             render_fish_preview(fb, stride, X + W / 2, Y + UI(48), n->size * 1.6f * UI_F, n->color, n->fin, n->accent, t->clock);
@@ -8082,8 +8091,9 @@ void render_notice(const tank_t *t, uint16_t *fb, int stride, int kind, int fish
     }
     if (ic) blit_icon_scaled(&c, X + (W - ic->w * UI_TEXT(2)) / 2, Y + UI(16) + (UI(32) - ic->w * UI_TEXT(2) / 2), ic, UI_TEXT(2), true);
     draw_text(&c, X + (W - text_w(title, UI_TEXT(3))) / 2, Y + (caption2 ? UI(70) : UI(92)), UI_TEXT(3), 0xffffff, title);
-    draw_text(&c, X + (W - text_w(caption, UI_TEXT(2))) / 2, Y + (caption2 ? UI(104) : UI(124)), UI_TEXT(2), MSP_TEAL, caption);
-    if (caption2) draw_text(&c, X + (W - text_w(caption2, UI_TEXT(2))) / 2, Y + UI(126), UI_TEXT(2), MSP_TEAL, caption2);
+    const int cy = Y + (caption2 ? UI(104) : UI(124));
+    draw_text(&c, X + (W - text_w(caption, UI_TEXT(2))) / 2, cy, UI_TEXT(2), MSP_TEAL, caption);
+    if (caption2) draw_text(&c, X + (W - text_w(caption2, UI_TEXT(2))) / 2, cy + render_line_pitch(caption, caption2, UI_TEXT(2), UI(22)), UI_TEXT(2), MSP_TEAL, caption2);
     if (frac_left < 0) frac_left = 0;
     if (frac_left > 1) frac_left = 1;
     rect_fill(&c, X + 2, Y + H - 4, (int)((W - 4) * frac_left), 2, 0x1c2f36);
@@ -8138,10 +8148,10 @@ static int  shp_item(const tank_t *t, int row) {                                
     if (i >= 8 && !progression_pumpkin_offered(t)) i++;
     return i;
 }
-static void fry_hours(char *out, size_t n) {   /* "NEW FRY IN 14 H" / "IN 40 MIN" */
+static void fry_hours(char *out, size_t n) {   /* Thai (2026-11-27): "รอบใหม่ใน 14 ชม." / "... 40 นาที" */
     float s = progression_fry_new_in_s();
-    if (s >= 3600) snprintf(out, n, "NEW FRY IN %d H", (int)((s + 1799) / 3600));
-    else snprintf(out, n, "NEW FRY IN %d MIN", (int)(s / 60) + 1);
+    if (s >= 3600) snprintf(out, n, "รอบใหม่ใน %d ชม.", (int)((s + 1799) / 3600));
+    else snprintf(out, n, "รอบใหม่ใน %d นาที", (int)(s / 60) + 1);
 }
 static void fry_draw(uint16_t *fb, int stride, float x, float y, float size, const fry_offer_t *o, float clock) {
     fish_t f; memset(&f, 0, sizeof f);
@@ -8157,10 +8167,10 @@ static void shop_fry_row(ctx_t *c, const tank_t *t, uint16_t *fb, int stride, in
     bool room = progression_fry_room(t), can = t->sd_balance >= SD_PRICE_FRY;
     const int by = top + SHP_BTN_DY;                         /* (this fork) the item rows' columns and button (render.h): the literals elsewhere */
     if (k >= 0) { fry_offer_t o; progression_fry_offer(k, &o); fry_draw(fb, stride, SHP_ROW_X + SHP_ROW_ICON / 2, top + SHP_ROW_ICON / 2, 0.9f * UI_F, &o, t->clock); }
-    draw_text(c, SHP_TEXT_X, top + UI(2), UI_TEXT(2), 0xffffff, "FRY");
-    if (k < 0) { char l[24]; fry_hours(l, sizeof l); draw_text(c, SHP_TEXT_X, top + UI(20), UI_TEXT(2), MSP_QUIET, l); }
+    draw_text(c, SHP_TEXT_X, top + UI(2), UI_TEXT(2), 0xffffff, "ลูกปลา");
+    if (k < 0) { char l[64]; fry_hours(l, sizeof l); draw_text(c, SHP_TEXT_X, top + UI(20), UI_TEXT(2), MSP_QUIET, l); }   /* (2026-11-27: Thai needs the room) */
     else price_tag(c, SHP_TEXT_X, top + UI(20), SD_PRICE_FRY, can && room ? MSP_TEAL : MSP_QUIET);
-    const char *b = k < 0 ? "SOLD OUT" : !room ? "FULL" : "CHOOSE";
+    const char *b = k < 0 ? "หมดแล้ว" : !room ? "เต็ม" : "เลือก";
     if (k >= 0 && room && can) { button(c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, MSP_TEAL, MSP_TEAL, b, UI_TEXT(2));
                                  draw_text(c, SHP_BTN_X + (SHP_BTN_W - text_w(b, UI_TEXT(2))) / 2, by + (SHP_BTN_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, b); }
     else button(c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, 0x1c2f36, MSP_DIM, b, UI_TEXT(2));
@@ -8169,7 +8179,7 @@ static void shop_fry_modal(ctx_t *c, const tank_t *t, uint16_t *fb, int stride) 
     const int X = SHP_MODAL_X, Y = SHP_MODAL_Y, W = SHP_MODAL_W, H = SHP_MODAL_H;
     rect_fill(c, X, Y, W, H, 0x04141a);
     rect_edge(c, X, Y, W, H, MSP_TEAL); rect_edge(c, X + 1, Y + 1, W - 2, H - 2, 0x1c2f36);
-    draw_text(c, X + (W - text_w("FRY FOR SALE", UI_TEXT(3))) / 2, Y + UI(14), UI_TEXT(3), 0xffffff, "FRY FOR SALE");
+    draw_text(c, X + (W - text_w("ลูกปลาที่มีขาย", UI_TEXT(3))) / 2, Y + UI(14), UI_TEXT(3), 0xffffff, "ลูกปลาที่มีขาย");
     for (int k = 0; k < FRY_OFFER_N; k++) {
         fry_offer_t o; progression_fry_offer(k, &o);
         int bx = SHP_FRY_BOX_X(k), by = SHP_FRY_BOX_Y;
@@ -8188,23 +8198,26 @@ static void shop_fry_modal(ctx_t *c, const tank_t *t, uint16_t *fb, int stride) 
     bool room = progression_fry_room(t), can = t->sd_balance >= SD_PRICE_FRY;
     fry_offer_t pk; progression_fry_offer(g_shp_fry_pick, &pk);
     bool go = room && can && !pk.sold && progression_fry_left() > 0;
-    char line[32]; snprintf(line, sizeof line, "%d", SD_PRICE_FRY);
+    char line[64]; snprintf(line, sizeof line, "%d", SD_PRICE_FRY);   /* (2026-11-27: the Thai lines below it) */
 #ifdef CONFIG_POCKET_TANK_320X240
     const int py = Y + UI(134);   /* (this fork) the 16 px coin is not scaled: at UI(138) it sat on the line UI(160), 14 px below */
 #else
     const int py = Y + UI(138);
 #endif
     price_tag(c, X + (W - (16 + UI(4)) - text_w(line, UI_TEXT(2))) / 2, py, SD_PRICE_FRY, go ? 0xffffff : MSP_QUIET);   /* (price_tag's coin and gap) */
-    if (!room) snprintf(line, sizeof line, t->n_fish >= POP_CAP ? "THE TANK IS FULL" : "WELCOME THE NEW FRY");
-    else if (!can) snprintf(line, sizeof line, "YOU HAVE %d", (int)t->sd_balance);
-    else line[0] = 0;
-    if (line[0]) draw_text(c, X + (W - text_w(line, UI_TEXT(2))) / 2, Y + UI(160), UI_TEXT(2), MSP_QUIET, line);
+    char msg[64]; msg[0] = 0;
+    if (!room) snprintf(msg, sizeof msg, t->n_fish >= POP_CAP ? "ตู้ปลาเต็มแล้ว" : "ต้อนรับลูกปลาตัวใหม่");
+    else if (!can) snprintf(msg, sizeof msg, "คุณมี %d", (int)t->sd_balance);
+    if (msg[0]) draw_text(c, X + (W - text_w(msg, UI_TEXT(2))) / 2, Y + UI(160), UI_TEXT(2), MSP_QUIET, msg);
     fry_hours(line, sizeof line);
-    draw_text(c, X + (W - text_w(line, UI_TEXT(2))) / 2, Y + UI(180), UI_TEXT(2), MSP_QUIET, line);
+    /* the hours line sits a Thai line under the words, not a Latin one: the
+       pitch grows to clear the tail above and the mark below (2026-11-27) */
+    const int hy = Y + UI(160) + (msg[0] ? render_line_pitch(msg, line, UI_TEXT(2), UI(20)) : 0);
+    draw_text(c, X + (W - text_w(line, UI_TEXT(2))) / 2, hy, UI_TEXT(2), MSP_QUIET, line);
     const int bx = X + (W - MSP_HOW_W) / 2, by = Y + H - UI(12) - MSP_HOW_H;
-    if (go) { button(c, bx, by, MSP_HOW_W, MSP_HOW_H, MSP_TEAL, MSP_TEAL, "BUY", UI_TEXT(2));
-              draw_text(c, bx + (MSP_HOW_W - text_w("BUY", UI_TEXT(2))) / 2, by + (MSP_HOW_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "BUY"); }
-    else button(c, bx, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_DIM, "BUY", UI_TEXT(2));
+    if (go) { button(c, bx, by, MSP_HOW_W, MSP_HOW_H, MSP_TEAL, MSP_TEAL, "ซื้อ", UI_TEXT(2));
+              draw_text(c, bx + (MSP_HOW_W - text_w("ซื้อ", UI_TEXT(2))) / 2, by + (MSP_HOW_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "ซื้อ"); }
+    else button(c, bx, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_DIM, "ซื้อ", UI_TEXT(2));
 }
 /* the shelf's words (0.3.9): the line under IN THE TANK / ON THE SHELF in a
  * placeable piece's modal - a living piece on the shelf says how far it has
@@ -8212,11 +8225,11 @@ static void shop_fry_modal(ctx_t *c, const tank_t *t, uint16_t *fb, int stride) 
  * sells it (so a SELL is an informed one). NULL = nothing to say. */
 static const char *shelf_line(const tank_t *t, int item, char *out, size_t n) {
     bool shelved = (t->sd_shelved & SD_ITEMS[item].bit) != 0;
-    if (item == 8 && !SD_PUMPKIN_IN_SHOP) return "NOT IN THE SHOP NOW";
-    if (!shelved) return tank_decor_locked(t, item) ? "LOCKED IN PLACE" : NULL;   /* (0.3.9: why a hold on it opens nothing; MOVE is the way to its page) */
-    if (item == 3) { snprintf(out, n, "GROWING  %d%%", (int)(tank_coral_growth(t) * 100 / CORAL_FULL + 0.5f)); return out; }
-    if (item == 4) { snprintf(out, n, "GROWING  %d%%", (int)(tank_cluster_growth(t) * 100 / CLUSTER_FULL + 0.5f)); return out; }
-    if (item == 0) return "GROWING";
+    if (item == 8 && !SD_PUMPKIN_IN_SHOP) return "ตอนนี้ไม่มีขาย";
+    if (!shelved) return tank_decor_locked(t, item) ? "ล็อกไว้กับที่" : NULL;   /* (0.3.9: why a hold on it opens nothing; MOVE is the way to its page) */
+    if (item == 3) { snprintf(out, n, "โตแล้ว %d%%", (int)(tank_coral_growth(t) * 100 / CORAL_FULL + 0.5f)); return out; }
+    if (item == 4) { snprintf(out, n, "โตแล้ว %d%%", (int)(tank_cluster_growth(t) * 100 / CLUSTER_FULL + 0.5f)); return out; }
+    if (item == 0) return "กำลังโต";
     return NULL;
 }
 /* the shelf's little tanks (0.3.9, Strato: "represented inside a small
@@ -8310,7 +8323,7 @@ void render_shop(const tank_t *t, uint16_t *fb, int stride) {
     ctx_t c = ctx_page(fb, stride);
     rect_fill(&c, -PAGE_X, -PAGE_Y, TANK_W, TANK_H, MSP_INK);
     blit_icon(&c, SHP_COIN_X, SHP_COIN_Y, SHP_COIN_ART, 255);
-    draw_text(&c, SHP_HEAD_X, SHP_COIN_Y + UI(6), UI_TEXT(2), MSP_TEAL, "SAND DOLLARS");
+    draw_text(&c, SHP_HEAD_X, SHP_COIN_Y + UI(6), UI_TEXT(2), MSP_TEAL, "เหรียญทราย");
     char bal[16]; snprintf(bal, sizeof bal, "%d", (int)t->sd_balance);
     draw_text(&c, SHP_HEAD_X, SHP_COIN_Y + UI(28), UI_TEXT(4), 0xffffff, bal);
     for (int x = MSP_RULE_X0; x < MSP_RULE_X1; x++) px_blend(&c, x, SHP_ROW_Y0 - UI(10), MSP_DIM, 200);
@@ -8327,18 +8340,18 @@ void render_shop(const tank_t *t, uint16_t *fb, int stride) {
         else if (owned) blit_icon(&c, SHP_ROW_X, top, shop_icon(i), 255); else blit_icon_locked(&c, SHP_ROW_X, top, shop_icon(i));   /* (the rows are where the bowl is wide: their own column) */
         const int by = top + SHP_BTN_DY;
         draw_text(&c, SHP_TEXT_X, top + UI(2), UI_TEXT(2), 0xffffff, it->name);
-        if (shelved) draw_text(&c, SHP_TEXT_X, top + UI(20), UI_TEXT(2), MSP_TEAL, "ON THE SHELF");
-        else if (owned) draw_text(&c, SHP_TEXT_X, top + UI(20), UI_TEXT(2), MSP_TEAL, "IN THE TANK");
+        if (shelved) draw_text(&c, SHP_TEXT_X, top + UI(20), UI_TEXT(2), MSP_TEAL, "อยู่บนชั้น");
+        else if (owned) draw_text(&c, SHP_TEXT_X, top + UI(20), UI_TEXT(2), MSP_TEAL, "อยู่ในตู้");
         else price_tag(&c, SHP_TEXT_X, top + UI(20), it->price, can ? MSP_TEAL : MSP_QUIET);
-        if (shelved) { button(&c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, MSP_TEAL, MSP_TEAL, "PUT BACK", UI_TEXT(2));          /* live: one tap returns it */
-                       draw_text(&c, SHP_BTN_X + (SHP_BTN_W - text_w("PUT BACK", UI_TEXT(2))) / 2, by + (SHP_BTN_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "PUT BACK"); }
-        else if (owned) button(&c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, MSP_INK, MSP_DIM, "IN TANK", UI_TEXT(2));
-        else if (can) { button(&c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, MSP_TEAL, MSP_TEAL, "UNLOCK", UI_TEXT(2));
-                        draw_text(&c, SHP_BTN_X + (SHP_BTN_W - text_w("UNLOCK", UI_TEXT(2))) / 2, by + (SHP_BTN_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "UNLOCK"); }
-        else           button(&c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, 0x1c2f36, MSP_DIM, "UNLOCK", UI_TEXT(2));
+        if (shelved) { button(&c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, MSP_TEAL, MSP_TEAL, "วางคืนตู้", UI_TEXT(2));          /* live: one tap returns it */
+                       draw_text(&c, SHP_BTN_X + (SHP_BTN_W - text_w("วางคืนตู้", UI_TEXT(2))) / 2, by + (SHP_BTN_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "วางคืนตู้"); }
+        else if (owned) button(&c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, MSP_INK, MSP_DIM, "อยู่ในตู้", UI_TEXT(2));
+        else if (can) { button(&c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, MSP_TEAL, MSP_TEAL, "ปลดล็อก", UI_TEXT(2));
+                        draw_text(&c, SHP_BTN_X + (SHP_BTN_W - text_w("ปลดล็อก", UI_TEXT(2))) / 2, by + (SHP_BTN_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "ปลดล็อก"); }
+        else           button(&c, SHP_BTN_X, by, SHP_BTN_W, SHP_BTN_H, 0x1c2f36, MSP_DIM, "ปลดล็อก", UI_TEXT(2));
     }
-    button(&c, SHP_EARN_X, MSP_CLOSE_Y, SHP_EARN_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "HOW TO EARN", UI_TEXT(2));
-    button(&c, SHP_CLOSE_X, MSP_CLOSE_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "CLOSE", UI_TEXT(2));
+    button(&c, SHP_EARN_X, MSP_CLOSE_Y, SHP_EARN_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "วิธีหาเหรียญ", UI_TEXT(2));
+    button(&c, SHP_CLOSE_X, MSP_CLOSE_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "ปิด", UI_TEXT(2));
     if (g_shp_modal < 0 && !g_shp_earn) return;
     for (int y = 0; y < TANK_H; y++)                          /* the page out of reach under a modal */
         for (int x = 0; x < TANK_W; x++) { uint16_t n = FB_SWAP16(fb[y * stride + x]); fb[y * stride + x] = FB_SWAP16((uint16_t)((n >> 1) & 0x7bef)); }
@@ -8347,10 +8360,15 @@ void render_shop(const tank_t *t, uint16_t *fb, int stride) {
         const int Y = SHP_EARN_MODAL_Y, H = SHP_EARN_MODAL_H;
         rect_fill(&c, X, Y, W, H, 0x04141a);
         rect_edge(&c, X, Y, W, H, MSP_TEAL); rect_edge(&c, X + 1, Y + 1, W - 2, H - 2, 0x1c2f36);
-        draw_text(&c, X + (W - text_w("HOW TO EARN", UI_TEXT(3))) / 2, Y + UI(14), UI_TEXT(3), 0xffffff, "HOW TO EARN");
+        draw_text(&c, X + (W - text_w("วิธีหาเหรียญ", UI_TEXT(3))) / 2, Y + UI(14), UI_TEXT(3), 0xffffff, "วิธีหาเหรียญ");
         const char *const *lines = progression_sd_earn_lines();
-        for (int i = 0; lines[i]; i++) draw_text(&c, X + UI(14), Y + UI(50) + i * UI(24), UI_TEXT(2), MSP_TEAL, lines[i]);
-        draw_text(&c, X + (W - text_w("TAP TO CLOSE", UI_TEXT(2))) / 2, Y + H - UI(24), UI_TEXT(2), MSP_QUIET, "TAP TO CLOSE");
+        /* a Thai line of this list sets its own depth: the pitch's UI(20) is
+           only the floor (2026-11-27, SHP_EARN_MODAL_H's extra 16) */
+        for (int i = 0, ly = Y + UI(44); lines[i]; i++) {
+            draw_text(&c, X + UI(14), ly, UI_TEXT(2), MSP_TEAL, lines[i]);
+            if (lines[i + 1]) ly += render_line_pitch(lines[i], lines[i + 1], UI_TEXT(2), UI(20));
+        }
+        draw_text(&c, X + (W - text_w("แตะเพื่อปิด", UI_TEXT(2))) / 2, Y + H - UI(24), UI_TEXT(2), MSP_QUIET, "แตะเพื่อปิด");
         return;
     }
     if (g_shp_modal == SHP_MODAL_FRY) { shop_fry_modal(&c, t, fb, stride); return; }
@@ -8363,31 +8381,39 @@ void render_shop(const tank_t *t, uint16_t *fb, int stride) {
     const int ax = X + (W - art->w * UI_TEXT(2)) / 2, ay = Y + UI(14);   /* (this fork) the art at the page's text scale: 1x on the CYD */
     blit_icon_scaled(&c, ax, ay, art, UI_TEXT(2), true);
     draw_text(&c, X + (W - text_w(it->name, UI_TEXT(3))) / 2, Y + UI(88), UI_TEXT(3), 0xffffff, it->name);
+    /* the two Thai lines (2026-11-27): render_line_pitch keeps the mark of the
+       second clear of the tail of the first, and the pair still ends above the
+       state line (the widest is 146 px at scale 1, 292 at 2) */
     draw_text(&c, X + (W - text_w(it->words, UI_TEXT(2))) / 2, Y + UI(118), UI_TEXT(2), MSP_TEAL, it->words);
-    draw_text(&c, X + (W - text_w(it->words2, UI_TEXT(2))) / 2, Y + UI(138), UI_TEXT(2), MSP_TEAL, it->words2);
+    draw_text(&c, X + (W - text_w(it->words2, UI_TEXT(2))) / 2, Y + UI(118) + render_line_pitch(it->words, it->words2, UI_TEXT(2), UI(20)), UI_TEXT(2), MSP_TEAL, it->words2);
     const int bx = X + (W - MSP_HOW_W) / 2, by = Y + H - UI(12) - MSP_HOW_H;
     if (owned && tank_decor_placeable(g_shp_modal)) {         /* a placeable piece (0.3.9): in the tank MOVE | SHELVE; on the shelf PLACE | SELL (twice) */
         bool shelved = (t->sd_shelved & it->bit) != 0; char sub[28];
         if (shelved) shelf_slot(&c, ax, ay, t, g_shp_modal, UI_TEXT(2));   /* over the icon: the piece as it is on the shelf */
-        const char *state = shelved ? "ON THE SHELF" : "IN THE TANK";
-        draw_text(&c, X + (W - text_w(state, UI_TEXT(2))) / 2, Y + UI(164), UI_TEXT(2), MSP_TEAL, state);
-        if (shelf_line(t, g_shp_modal, sub, sizeof sub)) draw_text(&c, X + (W - text_w(sub, UI_TEXT(2))) / 2, Y + UI(184), UI_TEXT(2), MSP_QUIET, sub);
-        button(&c, SHP_TWO_X0, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, shelved ? "PLACE" : "MOVE", UI_TEXT(2));
-        if (!shelved) button(&c, SHP_TWO_X1, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, "SHELVE", UI_TEXT(2));
-        else if (g_shp_sell_armed) { snprintf(sub, sizeof sub, "+%d OK?", progression_sell_value(g_shp_modal));
+        const char *state = shelved ? "อยู่บนชั้น" : "อยู่ในตู้";
+        /* (2026-11-27) a Thai line owns more of the panel than a Latin one - the
+           descenders of the words2 line reach the state's own mark at the old
+           UI(164) / UI(184), so the pair drops by a line each */
+        draw_text(&c, X + (W - text_w(state, UI_TEXT(2))) / 2, Y + UI(174), UI_TEXT(2), MSP_TEAL, state);
+        if (shelf_line(t, g_shp_modal, sub, sizeof sub)) draw_text(&c, X + (W - text_w(sub, UI_TEXT(2))) / 2, Y + UI(200), UI_TEXT(2), MSP_QUIET, sub);
+        button(&c, SHP_TWO_X0, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, shelved ? "วาง" : "ย้าย", UI_TEXT(2));
+        if (!shelved) button(&c, SHP_TWO_X1, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_TEAL, "เข้าชั้น", UI_TEXT(2));
+        else if (g_shp_sell_armed) { snprintf(sub, sizeof sub, "ขาย+%d", progression_sell_value(g_shp_modal));
                                      button(&c, SHP_TWO_X1, by, MSP_HOW_W, MSP_HOW_H, MSP_TEAL, MSP_TEAL, sub, UI_TEXT(2));
                                      draw_text(&c, SHP_TWO_X1 + (MSP_HOW_W - text_w(sub, UI_TEXT(2))) / 2, by + (MSP_HOW_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, sub); }
-        else button(&c, SHP_TWO_X1, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_DIM, "SELL", UI_TEXT(2));
-    } else if (owned) draw_text(&c, X + (W - text_w("IN THE TANK", UI_TEXT(2))) / 2, by + UI(8), UI_TEXT(2), MSP_TEAL, "IN THE TANK");   /* the snail: a permanent resident */
+        else button(&c, SHP_TWO_X1, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_DIM, "ขาย", UI_TEXT(2));
+    } else if (owned) draw_text(&c, X + (W - text_w("อยู่ในตู้", UI_TEXT(2))) / 2, by + UI(8), UI_TEXT(2), MSP_TEAL, "อยู่ในตู้");   /* the snail: a permanent resident */
     else {
         char line[32]; snprintf(line, sizeof line, "%d", it->price);
         int pw = 16 + UI(4) + text_w(line, UI_TEXT(2));
-        price_tag(&c, X + (W - pw) / 2, Y + UI(164), it->price, can ? 0xffffff : MSP_QUIET);
-        if (!can) { snprintf(line, sizeof line, "YOU HAVE %d", (int)t->sd_balance);
-                    draw_text(&c, X + (W - text_w(line, UI_TEXT(2))) / 2, Y + UI(184), UI_TEXT(2), MSP_QUIET, line); }
-        if (can) { button(&c, bx, by, MSP_HOW_W, MSP_HOW_H, MSP_TEAL, MSP_TEAL, "UNLOCK", UI_TEXT(2));
-                   draw_text(&c, bx + (MSP_HOW_W - text_w("UNLOCK", UI_TEXT(2))) / 2, by + (MSP_HOW_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "UNLOCK"); }
-        else button(&c, bx, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_DIM, "UNLOCK", UI_TEXT(2));
+        /* (2026-11-27) a Thai description's descender reaches where the price's
+           coin used to sit, so the price pair drops by a line too */
+        price_tag(&c, X + (W - pw) / 2, Y + UI(176), it->price, can ? 0xffffff : MSP_QUIET);
+        if (!can) { snprintf(line, sizeof line, "คุณมี %d", (int)t->sd_balance);
+                    draw_text(&c, X + (W - text_w(line, UI_TEXT(2))) / 2, Y + UI(196), UI_TEXT(2), MSP_QUIET, line); }
+        if (can) { button(&c, bx, by, MSP_HOW_W, MSP_HOW_H, MSP_TEAL, MSP_TEAL, "ปลดล็อก", UI_TEXT(2));
+                   draw_text(&c, bx + (MSP_HOW_W - text_w("ปลดล็อก", UI_TEXT(2))) / 2, by + (MSP_HOW_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "ปลดล็อก"); }
+        else button(&c, bx, by, MSP_HOW_W, MSP_HOW_H, 0x1c2f36, MSP_DIM, "ปลดล็อก", UI_TEXT(2));
     }
 }
 int render_shop_tap(const tank_t *t, float x, float y) {
@@ -8482,10 +8508,10 @@ void render_sd_toast(const tank_t *t, uint16_t *fb, int stride) {
  * end - Bananna on Discord, light sensitive: "even the 30% brightness can be
  * a bit bright"). */
 /* (the page's numbers, SET_*: render.h) */
-static const char *const SET_VOLUME[3] = { "OFF", "QUIET", "NORMAL" };
-static const char *const SET_LIGHT[LIGHT_IDLE_N + 1] = { "DOUBLE-TAP",   /* MANUAL, the default: the row says how the light is worked */
-    "5 SEC", "15 SEC", "30 SEC", "1 MIN", "3 MIN", "5 MIN", "10 MIN", "30 MIN" };
-static const char *const SET_FEED[2]   = { "ON", "OFF" };          /* the default first */
+static const char *const SET_VOLUME[3] = { "ปิด", "เบา", "ปกติ" };
+static const char *const SET_LIGHT[LIGHT_IDLE_N + 1] = { "แตะ 2 ครั้ง",   /* MANUAL, the default: the row says how the light is worked */
+    "5 วิ", "15 วิ", "30 วิ", "1 นาที", "3 นาที", "5 นาที", "10 นาที", "30 นาที" };
+static const char *const SET_FEED[2]   = { "เปิด", "ปิด" };          /* the default first */
 #if TANK_WORN
 static const char *const SET_SCREEN[2] = { "NORMAL", "TURNED" };   /* the default first */
 #endif
@@ -8493,8 +8519,8 @@ static const char *const SET_SCREEN[2] = { "NORMAL", "TURNED" };   /* the defaul
    chosen at run time (render.h, SET_TAP_FLIP), and the SLEEP row under it
    (SET_TAP_SLEEP) */
 #ifdef CONFIG_POCKET_TANK_320X240
-static const char *const SET_FLIP[2] = { "UPRIGHT", "FLIPPED" };
-static const char *const SET_SLEEP[3] = { "NEVER", "SCREEN", "LIGHT" };   /* SET_SLEEP_*'s order */
+static const char *const SET_FLIP[2] = { "ตั้งตรง", "พลิก" };
+static const char *const SET_SLEEP[3] = { "ไม่หลับ", "จอดับ", "ไฟดับ" };   /* SET_SLEEP_*'s order */
 #endif
 static bool g_set_flipped;                                       /* the SCREEN row's state, from the platform */
 static bool g_set_imu;                                           /* an IMU answered */
@@ -8525,7 +8551,7 @@ static int set_bright_at(float x) {
 static void set_slider(ctx_t *c, int row_y, int pct) {
     int y = SET_SEG_Y(row_y), cy = y + SET_SEG_H / 2;
     int kx = SET_BRT_X(pct < SET_BRT_MIN ? SET_BRT_MIN : pct > 100 ? 100 : pct);
-    draw_text(c, SET_LABEL_X, row_y, UI_TEXT(2), MSP_TEAL, "BRIGHTNESS");
+    draw_text(c, SET_LABEL_X, row_y, UI_TEXT(2), MSP_TEAL, "ความสว่าง");
     rect_fill(c, SET_SEG_X + UI(4), cy - UI(3), kx - SET_SEG_X - UI(4), UI(6), MSP_TEAL);
     rect_fill(c, kx, cy - UI(3), SET_SEG_X + SET_SPAN_W - UI(4) - kx, UI(6), 0x1c2f36);
     rect_edge(c, kx, cy - UI(3), SET_SEG_X + SET_SPAN_W - UI(4) - kx, UI(6), MSP_DIM);
@@ -8585,6 +8611,10 @@ static void set_lock_icon(ctx_t *c, int cx, int cy, bool locked, uint32_t rgb) {
 }
 #endif  /* (this fork) the 320x240 boards' smaller lock */
 #endif  /* !TANK_WORN */
+/* the tank switcher's name, in the settings button and over the shelves (2026-11-27, the Thai round: "ตู้ปลา", 3
+ * characters; the latin "MY TANKS" was 42 px at scale 2). One word, so the title and the padlock beside it still
+ * centre as one group in sh_lock_xy */
+#define SH_TITLE_WORD "ตู้ปลา"
 #define SET_TANKS_W (PAGE_BOWL ? 106 : 116)          /* (the bowl: between UPDATES and CLOSE with room either side) */
 #ifdef CONFIG_POCKET_TANK_320X240
 /* (this fork) a 320x240 board has no UPDATES: MY TANKS stands where the
@@ -8597,21 +8627,21 @@ static void set_lock_icon(ctx_t *c, int cx, int cy, bool locked, uint32_t rgb) {
 void render_settings(const tank_t *t, uint16_t *fb, int stride, int bright_pct, int volume) {
     ctx_t c = ctx_page(fb, stride);
     rect_fill(&c, -PAGE_X, -PAGE_Y, TANK_W, TANK_H, MSP_INK);
-    draw_text(&c, (PAGE_W - text_w("SETTINGS", UI_TEXT(3))) / 2, SET_TITLE_Y, UI_TEXT(3), 0xffffff, "SETTINGS");
+    draw_text(&c, (PAGE_W - text_w("ตั้งค่า", UI_TEXT(3))) / 2, SET_TITLE_Y, UI_TEXT(3), 0xffffff, "ตั้งค่า");
     set_slider(&c, SET_ROW1_Y, bright_pct);
-    set_row(&c, SET_ROW2_Y, "VOLUME", SET_VOLUME, 3, volume < 0 ? 0 : volume > 2 ? 2 : volume);
-    draw_text(&c, SET_LABEL_X, SET_NOTE_Y, UI_TEXT(2), MSP_QUIET, "FISH ARE QUIET AT NIGHT");
+    set_row(&c, SET_ROW2_Y, "เสียง", SET_VOLUME, 3, volume < 0 ? 0 : volume > 2 ? 2 : volume);
+    draw_text(&c, SET_LABEL_X, SET_NOTE_Y, UI_TEXT(2), MSP_QUIET, "ตอนกลางคืนปลาจะเงียบ");
     /* LIGHTS OUT: < the choice > */
     {
         int ch = tank_light_choice(t), y = SET_SEG_Y(SET_ROW3_Y);
         int bx = SET_SEG_X + SET_ARW_W + UI(4), bw = SET_SPAN_W - 2 * (SET_ARW_W + UI(4));
-        draw_text(&c, SET_LABEL_X, SET_ROW3_Y, UI_TEXT(2), MSP_TEAL, "LIGHTS OUT");
+        draw_text(&c, SET_LABEL_X, SET_ROW3_Y, UI_TEXT(2), MSP_TEAL, "ปิดไฟ");
         set_arrow(&c, SET_SEG_X, y, false, ch > 0);
         button(&c, bx, y, bw, SET_SEG_H, MSP_TEAL, MSP_TEAL, "", UI_TEXT(2));
         draw_text(&c, bx + (bw - text_w(SET_LIGHT[ch], UI_TEXT(2))) / 2, y + (SET_SEG_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, SET_LIGHT[ch]);
         set_arrow(&c, SET_SEG_X + SET_SPAN_W - SET_ARW_W, y, true, ch < LIGHT_IDLE_N);
     }
-    set_row(&c, SET_ROW4_Y, "AUTO FEED", SET_FEED, 2, t->autofeed_off ? 1 : 0);
+    set_row(&c, SET_ROW4_Y, "ให้อาหารเอง", SET_FEED, 2, t->autofeed_off ? 1 : 0);
 #if TANK_WORN
     /* SCREEN (2026-10-02): the way up of a watch worn either way round - TURNED
        for buttons toward the elbow. The picture turns as the finger lifts. */
@@ -8622,22 +8652,22 @@ void render_settings(const tank_t *t, uint16_t *fb, int stride, int bright_pct, 
     /* (this fork) a 320x240 board with no IMU to turn the picture - the CYD
        without its breakout, the Touch-LCD-2, whose IMU does not turn it
        (2026-10-08, adampog): the keeper's SCREEN */
-    if (!g_set_imu) set_row(&c, SET_ROW5_Y, "SCREEN", SET_FLIP, 2, g_set_flipped ? 1 : 0);
+    if (!g_set_imu) set_row(&c, SET_ROW5_Y, "จอ", SET_FLIP, 2, g_set_flipped ? 1 : 0);
     else
 #endif
     /* ROTATION (0.3.2): the picture turns over with the tank, unless locked */
     {
         int x = SET_SEG_X, y = SET_SEG_Y(SET_ROW5_Y);
-        draw_text(&c, SET_LABEL_X, SET_ROW5_Y, UI_TEXT(2), MSP_TEAL, "ROTATION");
+        draw_text(&c, SET_LABEL_X, SET_ROW5_Y, UI_TEXT(2), MSP_TEAL, "หมุนจอ");
         if (t->orient_lock) button(&c, x, y, SET_SEG_W, SET_SEG_H, MSP_TEAL, MSP_TEAL, "", UI_TEXT(2));
         else                button(&c, x, y, SET_SEG_W, SET_SEG_H, 0x1c2f36, MSP_DIM, "", UI_TEXT(2));
         set_lock_icon(&c, x + SET_SEG_W / 2, y + SET_SEG_H / 2 + 1, t->orient_lock, t->orient_lock ? MSP_INK : MSP_TEAL);
-        draw_text(&c, SET_ROT_WORD_X, SET_ROW5_Y, UI_TEXT(2), t->orient_lock ? 0xffffff : MSP_QUIET, t->orient_lock ? "LOCKED" : "UNLOCKED");
+        draw_text(&c, SET_ROT_WORD_X, SET_ROW5_Y, UI_TEXT(2), t->orient_lock ? 0xffffff : MSP_QUIET, t->orient_lock ? "ล็อก" : "ปลดล็อก");
     }
 #ifdef CONFIG_POCKET_TANK_320X240
     /* (this fork) the SLEEP row under it, IMU or not: what the ways into
        sleep do. A deepsleep build has no choice to offer and no row. */
-    if (g_set_sleep >= 0) set_row(&c, SET_ROW6_Y, "SLEEP", SET_SLEEP, 3, g_set_sleep);
+    if (g_set_sleep >= 0) set_row(&c, SET_ROW6_Y, "หลับ", SET_SLEEP, 3, g_set_sleep);
 #endif
 #endif
     /* the firmware version, hugging the bottom left of the frame (6 px up,
@@ -8669,20 +8699,20 @@ void render_settings(const tank_t *t, uint16_t *fb, int stride, int bright_pct, 
 #else
     draw_text_8px(&c, SET_LABEL_X + (PAGE_BOWL ? 96 : 0), PAGE_H - 8 - 6, MSP_DIM, ver);
 #endif
-    button(&c, SET_CLOSE_X, SET_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "CLOSE", UI_TEXT(2));
+    button(&c, SET_CLOSE_X, SET_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "ปิด", UI_TEXT(2));
 #ifndef CONFIG_POCKET_TANK_320X240 /* (this fork) a 320x240 board has no update channel: no UPDATES (CYD.md) */
     /* UPDATES (2026-09-30, docs/OTA.md): bottom left, the same size as CLOSE */
-    button(&c, SET_UPD_X, SET_FOOT_Y, SET_UPD_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "UPDATES", 2);
+    button(&c, SET_UPD_X, SET_FOOT_Y, SET_UPD_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "อัปเดต", 2);
 #endif
     /* MY TANKS (0.3.9.3, art approved by Strato; docs/tank-switcher.md: a way in on the glass for kids and a BOOT out of
        reach): between UPDATES and CLOSE, or over the pair where the glass is round or its corners deep */
 #if TANK_WORN
-    button(&c, (PAGE_W - SET_TANKS_W) / 2, SET_FOOT_Y - MSP_CLOSE_H - 10, SET_TANKS_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "MY TANKS", 2);
+    button(&c, (PAGE_W - SET_TANKS_W) / 2, SET_FOOT_Y - MSP_CLOSE_H - 10, SET_TANKS_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, SH_TITLE_WORD, 2);
 #elif defined(CONFIG_POCKET_TANK_320X240)
     /* (this fork) between the version and CLOSE: the way to MY TANKS on a board whose BOOT the case hides */
-    button(&c, SET_TANKS_X, SET_FOOT_Y, SET_TANKS_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "MY TANKS", UI_TEXT(2));
+    button(&c, SET_TANKS_X, SET_FOOT_Y, SET_TANKS_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, SH_TITLE_WORD, UI_TEXT(2));
 #else
-    button(&c, (SET_UPD_X + SET_UPD_W + SET_CLOSE_X - SET_TANKS_W) / 2, SET_FOOT_Y, SET_TANKS_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "MY TANKS", 2);
+    button(&c, (SET_UPD_X + SET_UPD_W + SET_CLOSE_X - SET_TANKS_W) / 2, SET_FOOT_Y, SET_TANKS_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, SH_TITLE_WORD, 2);
 #endif
 }
 static int set_segment(float x, int n) {
@@ -8832,7 +8862,7 @@ static void swap_button(ctx_t *c, int x, int y, int w, int h, float t) {
     uint32_t fill = sh_mix(MSP_TEAL, 0xf2fbfc, (int)(a * 200));
     button(c, x, y, w, h, fill, fill, "", UI_TEXT(2));
     rect_edge(c, x - 3, y - 3, w + 6, h + 6, sh_mix(0x0a2a36, 0xf2fbfc, (int)(a * 220)));   /* (a halo that breathes with it) */
-    draw_text(c, x + (w - text_w("SWAPPING", UI_TEXT(2))) / 2, y + (h - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "SWAPPING");
+    draw_text(c, x + (w - text_w("กำลังสลับ", UI_TEXT(2))) / 2, y + (h - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, "กำลังสลับ");
 }
 /* the whole frame at light/256 of its light (the swap's fade to dark) */
 void render_fade(uint16_t *fb, int stride, int light) {
@@ -8850,40 +8880,40 @@ static void lit_button(ctx_t *c, int x, int y, int w, int h, const char *label) 
 }
 void render_advanced(uint16_t *fb, int stride, int pick_mah, int pick_ma, int set_mah, bool stock, bool fast) {
     ctx_t c = ctx_page(fb, stride);
-    char txt[40];
+    char txt[64];                                 /* (Thai: three bytes a letter) */
     rect_fill(&c, -PAGE_X, -PAGE_Y, TANK_W, TANK_H, MSP_INK);
-    text_centre(&c, SET_TITLE_Y, UI_TEXT(3), 0xffffff, "ADVANCED");
-    draw_text_8px(&c, (PAGE_W - (13 * 6 - 1)) / 2, SET_TITLE_Y + UI(25), MSP_QUIET, "FOR GROWN-UPS");
+    text_centre(&c, SET_TITLE_Y, UI_TEXT(3), 0xffffff, "ขั้นสูง");
+    text_centre(&c, SET_TITLE_Y + UI(25), UI_TEXT(2), MSP_QUIET, "สำหรับผู้ใหญ่");   /* (was the 8 px font: that table is latin only) */
     /* TOUCH */
-    draw_text(&c, SET_LABEL_X, ADV_ROW1_Y, UI_TEXT(2), MSP_TEAL, "TOUCH");
-    button(&c, SET_SEG_X, SET_SEG_Y(ADV_ROW1_Y), SET_SPAN_W, SET_SEG_H, 0x1c2f36, MSP_TEAL, "CALIBRATE", UI_TEXT(2));
-    draw_text(&c, SET_LABEL_X, SET_SEG_Y(ADV_ROW1_Y) + SET_SEG_H + UI(10), UI_TEXT(2), MSP_QUIET, "TAPS MISSING THEIR MARK?");
+    draw_text(&c, SET_LABEL_X, ADV_ROW1_Y, UI_TEXT(2), MSP_TEAL, "ระบบสัมผัส");
+    button(&c, SET_SEG_X, SET_SEG_Y(ADV_ROW1_Y), SET_SPAN_W, SET_SEG_H, 0x1c2f36, MSP_TEAL, "ปรับการสัมผัส", UI_TEXT(2));
+    draw_text(&c, SET_LABEL_X, SET_SEG_Y(ADV_ROW1_Y) + SET_SEG_H + UI(10), UI_TEXT(2), MSP_QUIET, "แตะแล้วไม่ตรง?");
     if (!ADV_BATTERY_ROW) {                       /* (this fork) a 320 x 240 board: no charger the firmware sets, so no BATTERY row (advanced.h) */
-        button(&c, SET_CLOSE_X, SET_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "BACK", UI_TEXT(2));
+        button(&c, SET_CLOSE_X, SET_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "กลับ", UI_TEXT(2));
         return;
     }
     /* BATTERY: < 800 MAH > */
     int y = SET_SEG_Y(ADV_BAT_ROW);
     int bx = SET_SEG_X + SET_ARW_W + UI(4), bw = SET_SPAN_W - 2 * (SET_ARW_W + UI(4));
     const int *sz; int n = adv_cell_sizes(&sz);
-    draw_text(&c, SET_LABEL_X, ADV_BAT_ROW, UI_TEXT(2), MSP_TEAL, "BATTERY");
+    draw_text(&c, SET_LABEL_X, ADV_BAT_ROW, UI_TEXT(2), MSP_TEAL, "แบตเตอรี่");
     set_arrow(&c, SET_SEG_X, y, false, pick_mah > sz[0]);
     button(&c, bx, y, bw, SET_SEG_H, MSP_TEAL, MSP_TEAL, "", UI_TEXT(2));
-    snprintf(txt, sizeof txt, "%d MAH", pick_mah);
+    snprintf(txt, sizeof txt, "%d mAh", pick_mah);
     int tw = text_w(txt, UI_TEXT(2)), sx = bx + (bw - tw - (fast ? UI(22) : 0)) / 2;
     if (fast) adv_warn_sign(&c, sx + UI(8), y + (SET_SEG_H - UI(15)) / 2, UI(17), MSP_INK);   /* faster than the board's own: the sign rides along */
     draw_text(&c, sx + (fast ? UI(22) : 0), y + (SET_SEG_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_INK, txt);
     set_arrow(&c, SET_SEG_X + SET_SPAN_W - SET_ARW_W, y, true, pick_mah < sz[n - 1]);
-    if (stock) snprintf(txt, sizeof txt, "STANDARD - CHARGES AT %d MA", pick_ma);
-    else       snprintf(txt, sizeof txt, "CHARGES AT %d MA", pick_ma);
+    if (stock) snprintf(txt, sizeof txt, "มาตรฐาน - ชาร์จที่ %d mA", pick_ma);
+    else       snprintf(txt, sizeof txt, "ชาร์จที่ %d mA", pick_ma);
     draw_text(&c, SET_LABEL_X, y + SET_SEG_H + UI(10), UI_TEXT(2), MSP_QUIET, txt);
     if (pick_mah != set_mah) {                    /* a size picked, not in use yet: SET applies it (the warning first, when it is faster) */
-        snprintf(txt, sizeof txt, "SET %d MAH", pick_mah);
+        snprintf(txt, sizeof txt, "ตั้ง %d mAh", pick_mah);
         lit_button(&c, SET_SEG_X, ADV_SET_Y, SET_SPAN_W, ADV_SET_H, txt);
-        snprintf(txt, sizeof txt, "NOW %d MAH", set_mah);
+        snprintf(txt, sizeof txt, "ตอนนี้ %d mAh", set_mah);
         draw_text(&c, SET_LABEL_X, ADV_SET_Y + (ADV_SET_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_QUIET, txt);
-    } else draw_text(&c, SET_LABEL_X, y + SET_SEG_H + UI(32), UI_TEXT(2), MSP_QUIET, "MATCH THE SIZE ON YOUR BATTERY");
-    button(&c, SET_CLOSE_X, SET_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "BACK", UI_TEXT(2));
+    } else draw_text(&c, SET_LABEL_X, y + SET_SEG_H + UI(32), UI_TEXT(2), MSP_QUIET, "ตั้งให้ตรงขนาดแบตของคุณ");
+    button(&c, SET_CLOSE_X, SET_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "กลับ", UI_TEXT(2));
 }
 int render_advanced_tap(float x, float y) {
     x -= PAGE_X; y -= PAGE_Y;
@@ -8902,23 +8932,23 @@ int render_advanced_tap(float x, float y) {
  * the box is ticked, then a lit button (brightness and fill, not hue). */
 void render_battery_warning(uint16_t *fb, int stride, int cell_mah, int charge_ma, bool checked) {
     ctx_t c = ctx_page(fb, stride);
-    char txt[48];
+    char txt[64];                                 /* (Thai: three bytes a letter) */
     rect_fill(&c, -PAGE_X, -PAGE_Y, TANK_W, TANK_H, MSP_INK);
     {   /* the sign and the word, one group, centred */
-        int sw = UI(36), gap = UI(12), tw = text_w("WARNING", UI_TEXT(3)), x0 = (PAGE_W - sw - gap - tw) / 2;
+        int sw = UI(36), gap = UI(12), tw = text_w("คำเตือน", UI_TEXT(3)), x0 = (PAGE_W - sw - gap - tw) / 2;
         adv_warn_sign(&c, x0 + sw / 2, SET_TITLE_Y - UI(6), sw, ADV_WARN_RGB);
-        draw_text(&c, x0 + sw + gap, SET_TITLE_Y, UI_TEXT(3), 0xffffff, "WARNING");
+        draw_text(&c, x0 + sw + gap, SET_TITLE_Y, UI_TEXT(3), 0xffffff, "คำเตือน");
     }
     int y = SET_TITLE_Y + UI(42);
-    text_centre(&c, y, UI_TEXT(2), 0xffffff, "ONLY FOR A BIGGER BATTERY."); y += UI(30);
-    snprintf(txt, sizeof txt, "THE TANK WILL CHARGE AT %d MA.", charge_ma);
+    text_centre(&c, y, UI_TEXT(2), 0xffffff, "ใช้กับแบตที่ใหญ่กว่าเท่านั้น"); y += UI(30);
+    snprintf(txt, sizeof txt, "ตู้ปลาจะชาร์จที่ %d mA", charge_ma);
     text_centre(&c, y, UI_TEXT(2), MSP_TEAL, txt); y += UI(22);
-    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "A SMALLER BATTERY CHARGED THIS"); y += UI(22);
-    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "FAST CAN GET HOT, SWELL UP"); y += UI(22);
-    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "OR CATCH FIRE."); y += UI(30);
-    text_centre(&c, y, UI_TEXT(2), 0xffffff, "READ THE SIZE PRINTED ON IT.");
+    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "แบตเล็กที่ชาร์จเร็วขนาดนี้"); y += UI(22);
+    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "อาจร้อน บวม"); y += UI(22);
+    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "หรือติดไฟได้"); y += UI(30);
+    text_centre(&c, y, UI_TEXT(2), 0xffffff, "อ่านขนาดที่พิมพ์บนแบต");
     {   /* the box: [x]  MY BATTERY IS 800 MAH / OR BIGGER */
-        snprintf(txt, sizeof txt, "MY BATTERY IS %d MAH", cell_mah);
+        snprintf(txt, sizeof txt, "แบตของผมคือ %d mAh", cell_mah);
         int bs = ADV_WARN_BOX, gap = UI(14), tw = text_w(txt, UI_TEXT(2)), x0 = (PAGE_W - bs - gap - tw) / 2, by = ADV_WARN_BOX_Y;
         rect_fill(&c, x0, by, bs, bs, checked ? MSP_TEAL : 0x1c2f36);
         rect_edge(&c, x0, by, bs, bs, MSP_TEAL); rect_edge(&c, x0 + 1, by + 1, bs - 2, bs - 2, MSP_TEAL);
@@ -8928,13 +8958,13 @@ void render_battery_warning(uint16_t *fb, int stride, int cell_mah, int charge_m
                 rect_fill(&c, px, py - 1, 2, UI(4), MSP_INK);
             }
         draw_text(&c, x0 + bs + gap, by, UI_TEXT(2), 0xffffff, txt);
-        draw_text(&c, x0 + bs + gap, by + UI(20), UI_TEXT(2), 0xffffff, "OR BIGGER");
+        draw_text(&c, x0 + bs + gap, by + UI(20), UI_TEXT(2), 0xffffff, "หรือใหญ่กว่า");
     }
-    button(&c, SET_UPD_X, SET_FOOT_Y, SET_UPD_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "CANCEL", UI_TEXT(2));
-    if (checked) lit_button(&c, ADV_CONT_X, SET_FOOT_Y, ADV_CONT_W, MSP_CLOSE_H, "CONTINUE");
+    button(&c, SET_UPD_X, SET_FOOT_Y, SET_UPD_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "ยกเลิก", UI_TEXT(2));
+    if (checked) lit_button(&c, ADV_CONT_X, SET_FOOT_Y, ADV_CONT_W, MSP_CLOSE_H, "ต่อไป");
     else {
         rect_edge(&c, ADV_CONT_X, SET_FOOT_Y, ADV_CONT_W, MSP_CLOSE_H, MSP_DIM);
-        draw_text(&c, ADV_CONT_X + (ADV_CONT_W - text_w("CONTINUE", UI_TEXT(2))) / 2, SET_FOOT_Y + (MSP_CLOSE_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_DIM, "CONTINUE");
+        draw_text(&c, ADV_CONT_X + (ADV_CONT_W - text_w("ต่อไป", UI_TEXT(2))) / 2, SET_FOOT_Y + (MSP_CLOSE_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_DIM, "ต่อไป");
     }
 }
 int render_battery_warning_tap(float x, float y) {
@@ -8951,16 +8981,16 @@ int render_battery_warning_tap(float x, float y) {
 void render_touch_intro(uint16_t *fb, int stride, bool own_in_use, const char *msg) {
     ctx_t c = ctx_page(fb, stride);
     rect_fill(&c, -PAGE_X, -PAGE_Y, TANK_W, TANK_H, MSP_INK);
-    text_centre(&c, SET_TITLE_Y, UI_TEXT(3), 0xffffff, "TOUCH");
+    text_centre(&c, SET_TITLE_Y, UI_TEXT(3), 0xffffff, "ระบบสัมผัส");
     int y = SET_TITLE_Y + UI(46);
-    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "HOLD THE TANK THE WAY"); y += UI(22);
-    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "YOU USUALLY DO."); y += UI(34);
-    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "NINE CROSSES COME UP."); y += UI(22);
-    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "TAP THE MIDDLE OF EACH ONE.");
-    lit_button(&c, (PAGE_W - ADV_START_W) / 2, ADV_START_Y, ADV_START_W, SET_SEG_H, "START");
-    if (own_in_use) button(&c, (PAGE_W - ADV_RESET_W) / 2, ADV_RESET_Y, ADV_RESET_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "RESET TOUCH", UI_TEXT(2));
+    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "ถือตู้ปลาแบบที่คุณ"); y += UI(22);
+    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "ถือเป็นประจำ"); y += UI(34);
+    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "จะมีกากบาทขึ้นเก้าจุด"); y += UI(22);
+    text_centre(&c, y, UI_TEXT(2), MSP_TEAL, "แตะตรงกลางของแต่ละจุด");
+    lit_button(&c, (PAGE_W - ADV_START_W) / 2, ADV_START_Y, ADV_START_W, SET_SEG_H, "เริ่ม");
+    if (own_in_use) button(&c, (PAGE_W - ADV_RESET_W) / 2, ADV_RESET_Y, ADV_RESET_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "รีเซ็ตระบบสัมผัส", UI_TEXT(2));
     if (msg) text_centre(&c, ADV_RESET_Y + MSP_CLOSE_H + UI(10), UI_TEXT(2), 0xffffff, msg);
-    button(&c, SET_CLOSE_X, SET_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "BACK", UI_TEXT(2));
+    button(&c, SET_CLOSE_X, SET_FOOT_Y, MSP_CLOSE_W, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "กลับ", UI_TEXT(2));
 }
 int render_touch_intro_tap(float x, float y, bool own_in_use) {
     x -= PAGE_X; y -= PAGE_Y;
@@ -8976,22 +9006,22 @@ static void touch_cross(ctx_t *c, int fx, int fy, uint32_t rgb) {      /* a cros
 }
 void render_touch_cross(uint16_t *fb, int stride, int i, int n, int tx, int ty) {
     ctx_t c = ctx_page(fb, stride);
-    char txt[32];
+    char txt[48];                                 /* (Thai: three bytes a letter) */
     rect_fill(&c, -PAGE_X, -PAGE_Y, TANK_W, TANK_H, MSP_INK);
     touch_cross(&c, tx, ty, MSP_TEAL);
-    snprintf(txt, sizeof txt, "TAP THE CROSS  %d OF %d", i + 1, n);
+    snprintf(txt, sizeof txt, "แตะกากบาท %d จาก %d", i + 1, n);
     text_centre(&c, ty - PAGE_Y < PAGE_H / 2 ? PAGE_H - UI(60) : UI(46), UI_TEXT(2), 0xffffff, txt);
 }
 void render_touch_check(uint16_t *fb, int stride, int tx, int ty, float secs_left, float secs_total) {
     ctx_t c = ctx_page(fb, stride);
-    char txt[40];
+    char txt[64];                                 /* (Thai: three bytes a letter) */
     rect_fill(&c, -PAGE_X, -PAGE_Y, TANK_W, TANK_H, MSP_INK);
     touch_cross(&c, tx, ty, MSP_TEAL);
     int y = ty - PAGE_Y < PAGE_H / 2 ? PAGE_H - UI(96) : UI(30);
-    text_centre(&c, y, UI_TEXT(2), 0xffffff, "TAP THIS CROSS TO KEEP"); y += UI(22);
-    text_centre(&c, y, UI_TEXT(2), 0xffffff, "THE NEW TOUCH"); y += UI(28);
+    text_centre(&c, y, UI_TEXT(2), 0xffffff, "แตะกากบาทนี้เพื่อใช้"); y += UI(22);
+    text_centre(&c, y, UI_TEXT(2), 0xffffff, "ระบบสัมผัสใหม่"); y += UI(28);
     int s = (int)ceilf(secs_left < 0 ? 0 : secs_left);
-    snprintf(txt, sizeof txt, "THE OLD ONE COMES BACK IN %d", s);
+    snprintf(txt, sizeof txt, "กลับไปแบบเดิมใน %d", s);
     text_centre(&c, y, UI_TEXT(2), MSP_QUIET, txt); y += UI(24);
     int bw = UI(240), bx = (PAGE_W - bw) / 2;                /* the time left, a bar that shrinks */
     float f = secs_total > 0 ? secs_left / secs_total : 0; if (f < 0) f = 0;
@@ -9228,8 +9258,8 @@ static void sh_arrow(ctx_t *c, int x, int y, bool right, bool live) {
     }
 }
 static void sh_pager(ctx_t *c, int cx, int y, int page, int pages) {
-    char t[16];
-    snprintf(t, sizeof t, "%d OF %d", page, pages);
+    char t[24];                                   /* (Thai: "%d จาก %d" is 24 bytes at its widest) */
+    snprintf(t, sizeof t, "%d จาก %d", page, pages);
     int tw = text_w(t, UI_TEXT(2));
     sh_arrow(c, cx - tw / 2 - UI(12) - SH_ARW_W, y, false, page > 1);
     draw_text(c, cx - tw / 2, y + (MSP_CLOSE_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), pages > 1 ? 0xffffff : MSP_QUIET, t);
@@ -9304,14 +9334,14 @@ static void sh_lock_btn(ctx_t *c, int x, int y, bool locked) {
 }
 static void sh_lock_xy(int *x, int *y) {                   /* by the title: at the shelves' right edge, or beside the title on the round glass and the watch */
 #if PAGE_BOWL || defined(TANK_WATCH)
-    *x = (TANK_W - text_w("MY TANKS", 3) - 14 - SH_LOCK_W) / 2 + text_w("MY TANKS", 3) + 14;   /* (the title and the button centered as one group) */
+    *x = (TANK_W - text_w(SH_TITLE_WORD, 3) - 14 - SH_LOCK_W) / 2 + text_w(SH_TITLE_WORD, 3) + 14;   /* (the title and the button centered as one group) */
 #elif defined(CONFIG_POCKET_TANK_320X240)
     /* (this fork) 4 px in from the glass's right edge, not at the shelves': the rows start 34 px down, so at the shelves'
      * edge the button's foot stood over the NOW tag of a tank in the top row's fourth place. In line with CLOSE's
      * right edge (8 px in) it would still touch the tag's corner; 4 px in leaves a 4 px gap. The glass is square-
      * cornered, so its edge needs no more margin than that */
 #define SH_LOCK_X (TANK_W - 4 - SH_LOCK_W)
-#define SH_NOW_W  (3 * 6 * UI_TEXT(2) - UI_TEXT(2) + UI(12))          /* the NOW tag's width, as render_shelf draws it (text_w: 6 px a letter less one) */
+#define SH_NOW_W  (16 * UI_TEXT(2) - UI_TEXT(2) + UI(12))            /* the NOW tag's width, as render_shelf draws it (text_w of "ตู้นี้": two 8 px letters, the marks none) */
     _Static_assert(SH_LOCK_X >= SH_X0 + 3 * (SH_TW + SH_GAP) + (SH_TW - SH_NOW_W) / 2 + SH_NOW_W + 3,
                    "the padlock stands clear of the NOW tag over the top row's fourth tank, with a gap the eye can see");
     *x = SH_LOCK_X;
@@ -9326,9 +9356,9 @@ void render_touch_lock_hint(uint16_t *fb, int stride) {    /* a tap on a locked 
     ctx_t c = ctx_frame(fb, stride);
 #ifdef CONFIG_POCKET_TANK_320X240
     /* (this fork) BOOT can be out of reach (the CYD in its case): a finger held still opens MY TANKS too (touch_port_ft3168.c) */
-    const char *l1 = "TOUCH IS LOCKED", *l2 = "HOLD A FINGER 5 S TO UNLOCK";
+    const char *l1 = "ทัชถูกล็อก", *l2 = "กดนิ้วค้าง 5 วิ ปลดล็อก";
 #else
-    const char *l1 = "TOUCH IS LOCKED", *l2 = "PRESS BOOT TWICE TO UNLOCK";
+    const char *l1 = "ทัชถูกล็อก", *l2 = "กด BOOT สองครั้งเพื่อปลดล็อก";
 #endif
     int tw = text_w(l1, UI_TEXT(2)) > text_w(l2, 1) ? text_w(l1, UI_TEXT(2)) : text_w(l2, 1);
     int w = UI(14) + 16 + UI(12) + tw + UI(14), h = UI(46), x = (TANK_W - w) / 2, y = TANK_H * 62 / 100;
@@ -9353,13 +9383,13 @@ void render_shelf(uint16_t *fb, int stride, const shelf_slot_t slot[8], int page
     sh_wall(&c);
     const bool moving = g_sh_moving;
     if (moving) {                                          /* MOVE: the title names the tank in hand */
-        char t[32]; snprintf(t, sizeof t, "MOVE %s", g_sh_move_name);
+        char t[48]; snprintf(t, sizeof t, "ย้าย %s", g_sh_move_name);   /* (Thai: three bytes a letter, and the name up to 23) */
         draw_text(&c, (TANK_W - text_w(t, UI_TEXT(2))) / 2, SH_TITLE_Y + UI(4), UI_TEXT(2), 0xffffff, t);
     } else {
 #if PAGE_BOWL || defined(TANK_WATCH)
-    draw_text(&c, (TANK_W - text_w("MY TANKS", 3) - 14 - SH_LOCK_W) / 2, SH_TITLE_Y, 3, 0xffffff, "MY TANKS");   /* (beside the padlock) */
+    draw_text(&c, (TANK_W - text_w(SH_TITLE_WORD, 3) - 14 - SH_LOCK_W) / 2, SH_TITLE_Y, 3, 0xffffff, SH_TITLE_WORD);   /* (beside the padlock) */
 #else
-    draw_text(&c, (TANK_W - text_w("MY TANKS", UI_TEXT(3))) / 2, SH_TITLE_Y, UI_TEXT(3), 0xffffff, "MY TANKS");
+    draw_text(&c, (TANK_W - text_w(SH_TITLE_WORD, UI_TEXT(3))) / 2, SH_TITLE_Y, UI_TEXT(3), 0xffffff, SH_TITLE_WORD);
 #endif
     }
     for (int row = 0; row < 2; row++)
@@ -9389,9 +9419,9 @@ void render_shelf(uint16_t *fb, int stride, const shelf_slot_t slot[8], int page
                 }
         sh_tank(&c, x, y, SH_TW, SH_IH, s->thumb, !now);
         if (now) {                                         /* the NOW tag over the lid (scale 2, 0.3.9.3) */
-            int w = text_w("NOW", UI_TEXT(2)) + UI(12), tx = x + (SH_TW - w) / 2, ty = y - UI(20);
+            int w = text_w("ตู้นี้", UI_TEXT(2)) + UI(12), tx = x + (SH_TW - w) / 2, ty = y - UI(20);
             rect_fill(&c, tx, ty, w, UI(18), MSP_TEAL);
-            draw_text(&c, tx + UI(6), ty + UI(2), UI_TEXT(2), MSP_INK, "NOW");
+            draw_text(&c, tx + UI(6), ty + UI(2), UI_TEXT(2), MSP_INK, "ตู้นี้");   /* ("NOW", 3 characters: the tag's width in sh_lock_xy's assert stays right) */
         } else sh_rest_sign(&c, x + SH_TW - 13, y + SH_LID + 12, s->state);
         if (now && g_sh_touch_lock) {                      /* the locked glass: the padlock where the others wear their rest signs */
             int cx = x + SH_TW - 13, cy = y + SH_LID + 12;
@@ -9407,7 +9437,7 @@ void render_shelf(uint16_t *fb, int stride, const shelf_slot_t slot[8], int page
         }
         sh_plate(&c, x + SH_TW / 2, face + 1, s->name);
     }
-    sh_footer(&c, moving ? "CANCEL" : "LIBRARY", false, 0, moving ? "" : "CLOSE", page, pages);
+    sh_footer(&c, moving ? "ยกเลิก" : "คลังตู้", false, 0, moving ? "" : "ปิด", page, pages);
     if (!moving) { int lx, ly; sh_lock_xy(&lx, &ly); sh_lock_btn(&c, lx, ly, g_sh_touch_lock); }
 }
 
@@ -9612,7 +9642,7 @@ void render_shelf_rename(uint16_t *fb, int stride, const shelf_slot_t *s, const 
             for (int x = 0; x < TANK_W; x++) px565_blend(&c, x, y, 0, 244);   /* (near black: the shelves only a hint behind) */
     }
     if (!(part & 2)) return;
-    draw_text(&c, (TANK_W - text_w("RENAME THIS TANK", UI_TEXT(2))) / 2, NK_PLATE_Y - UI(26), UI_TEXT(2), 0xffffff, "RENAME THIS TANK");
+    draw_text(&c, (TANK_W - text_w("ตั้งชื่อตู้ปลา", UI_TEXT(2))) / 2, NK_PLATE_Y - UI(26), UI_TEXT(2), 0xffffff, "ตั้งชื่อตู้ปลา");
     rect_fill(&c, NK_PX0, NK_PLATE_Y, NK_PW, NK_PH, SH_BRASS); rect_edge(&c, NK_PX0, NK_PLATE_Y, NK_PW, NK_PH, 0x7a6435);
     for (int k = 0; k < 2; k++) {
         int ty = NK_PLATE_Y + UI(9) + k * (NK_LH + UI(12)), tx = NK_PX0 + UI(12);
@@ -9623,18 +9653,18 @@ void render_shelf_rename(uint16_t *fb, int stride, const shelf_slot_t *s, const 
             if (n < SHR_N && ((int)(clock * 2) & 1)) rect_fill(&c, tx + n * NK_GW, ty - UI(2), NK_S, NK_LH + UI(4), 0x2c2412);   /* the bar */
         }
     }
-    { int x, y, w, h; nk_box(SHK_CLEAR, &x, &y, &w, &h); button(&c, x, y, w, h, 0x1c2f36, MSP_TEAL, "CLEAR", UI_TEXT(2)); }
+    { int x, y, w, h; nk_box(SHK_CLEAR, &x, &y, &w, &h); button(&c, x, y, w, h, 0x1c2f36, MSP_TEAL, "ล้าง", UI_TEXT(2)); }
     for (int cell = 0; cell < 14; cell++) {
         int x, y, w, h; nk_box(SHK_CHAR0 + cell, &x, &y, &w, &h);
         char lbl[2] = { NK_PAGES[r->page][cell], 0 };
         rect_fill(&c, x, y, w, h, 0x16262c); rect_edge(&c, x, y, w, h, 0x3d5d66);
         draw_text(&c, x + (w - text_w(lbl, UI_TEXT(3))) / 2, y + (h - 7 * UI_TEXT(3)) / 2, UI_TEXT(3), 0xffffff, lbl);
     }
-    static const struct { int key; const char *lbl; } FK[6] = { { SHK_MORE, "MORE" }, { SHK_DEL, "DEL" }, { SHK_SPACE, "SPACE" }, { SHK_LINE, "LINE" }, { SHK_BACK, "BACK" }, { SHK_DONE, "DONE" } };
+    static const struct { int key; const char *lbl; } FK[6] = { { SHK_MORE, "อีก" }, { SHK_DEL, "ลบ" }, { SHK_SPACE, "วรรค" }, { SHK_LINE, "บรรทัด" }, { SHK_BACK, "กลับ" }, { SHK_DONE, "เสร็จ" } };
     for (int f = 0; f < 6; f++) {
         int x, y, w, h; nk_fn_box(FK[f].key, &x, &y, &w, &h);
-        if (FK[f].key == SHK_DONE) lit_button(&c, x, y, w, h, "DONE");
-        else if (FK[f].key == SHK_BACK) button(&c, x, y, w, h, 0x16262c, 0x3d5d66, "BACK", UI_TEXT(2));   /* (it leaves the page: quieter) */
+        if (FK[f].key == SHK_DONE) lit_button(&c, x, y, w, h, FK[f].lbl);
+        else if (FK[f].key == SHK_BACK) button(&c, x, y, w, h, 0x16262c, 0x3d5d66, FK[f].lbl, UI_TEXT(2));   /* (it leaves the page: quieter) */
         else button(&c, x, y, w, h, 0x1c2f36, MSP_TEAL, FK[f].lbl, UI_TEXT(2));
         if (FK[f].key == SHK_SPACE) rect_fill(&c, x + UI(10), y + h / 2 + UI(10), w - UI(20), 3, MSP_TEAL);   /* the space bar's bar */
         if (FK[f].key == SHK_MORE) for (int i = 0; i < 3; i++) rect_fill(&c, x + w / 2 - UI(10) + i * UI(8), y + h - UI(10), UI(4), UI(4), i == r->page ? MSP_TEAL : 0x3d5d66);   /* which page */
@@ -9657,42 +9687,42 @@ void render_shelf_card(uint16_t *fb, int stride, const shelf_slot_t *s, const ch
     { char nm[24]; snprintf(nm, sizeof nm, "%s", s->name); for (char *p = nm; *p; p++) if (*p == '\n') *p = ' ';   /* (its two lines as one) */
       draw_text(&c, tx, ty, UI_TEXT(2), 0xffffff, nm); ty += UI(24); }                /* (every line scale 2 since 0.3.9.3: the 6 px ones read as specks) */
     draw_text(&c, tx, ty, UI_TEXT(2), MSP_TEAL, kind); ty += UI(18);
-    if (s->experimental) { sh_flask(&c, tx, ty + UI(2), MSP_QUIET); draw_text(&c, tx + 10, ty, UI_TEXT(2), MSP_QUIET, "EXPERIMENTAL"); ty += UI(18); }
+    if (s->experimental) { sh_flask(&c, tx, ty + UI(2), MSP_QUIET); draw_text(&c, tx + 10, ty, UI_TEXT(2), MSP_QUIET, "ทดลอง"); ty += UI(18); }
     const bool glass = s->state == SHELF_NOW;              /* the tank on the glass (0.3.9.3): its name and RENAME, nothing to swap or rest */
     g_shc_glass = glass;
-    if (glass) snprintf(t, sizeof t, "ON THE GLASS"); else snprintf(t, sizeof t, "SHELVED %d DAY%s", shelf_days, shelf_days == 1 ? "" : "S");
+    if (glass) snprintf(t, sizeof t, "อยู่ในตู้"); else snprintf(t, sizeof t, "เข้าชั้น %d วัน", shelf_days);
     draw_text(&c, tx, ty, UI_TEXT(2), MSP_TEAL, t); ty += UI(18);
-    if (age_days >= 0) { snprintf(t, sizeof t, "%d DAYS OLD", age_days); draw_text(&c, tx, ty, UI_TEXT(2), MSP_TEAL, t); }
+    if (age_days >= 0) { snprintf(t, sizeof t, "อายุ %d วัน", age_days); draw_text(&c, tx, ty, UI_TEXT(2), MSP_TEAL, t); }
     int y = my + UI(16) + top + UI(14);                            /* TIME: DORMANT | PAUSED */
     if (glass) {                                           /* (in its place: what the shelf does with it) */
-        const char *l1 = "SWAP IN ANOTHER TANK", *l2 = "TO PUT THIS ONE AWAY";
+        const char *l1 = "สลับตู้ใบอื่นขึ้นมา", *l2 = "เพื่อเก็บใบนี้เข้าชั้น";
         draw_text(&c, mx + (SHC_W - text_w(l1, UI_TEXT(2))) / 2, y + UI(4), UI_TEXT(2), MSP_QUIET, l1);
         draw_text(&c, mx + (SHC_W - text_w(l2, UI_TEXT(2))) / 2, y + UI(24), UI_TEXT(2), MSP_QUIET, l2);
         y += SHC_SEG_H + SHC_NOTE;
-        button(&c, mx + (SHC_W - UI(98)) / 2, y, UI(98), MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "RENAME", UI_TEXT(2));
+        button(&c, mx + (SHC_W - UI(98)) / 2, y, UI(98), MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "เปลี่ยนชื่อ", UI_TEXT(2));
         return;
     }
-    draw_text(&c, mx + UI(16), y + (SHC_SEG_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_TEAL, "TIME");
-    int sx = mx + UI(16) + text_w("TIME", UI_TEXT(2)) + UI(14), sw = mx + SHC_W - UI(16) - sx, half = sw / 2;
+    draw_text(&c, mx + UI(16), y + (SHC_SEG_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_TEAL, "เวลา");
+    int sx = mx + UI(16) + text_w("เวลา", UI_TEXT(2)) + UI(14), sw = mx + SHC_W - UI(16) - sx, half = sw / 2;
     bool paused = s->state == SHELF_PAUSED;
     for (int k = 0; k < 2; k++) {
         bool on = (k == 1) == paused;
-        const char *lab = k ? "PAUSED" : "DORMANT";
+        const char *lab = k ? "หยุดรอ" : "หลับอยู่";
         int bx = sx + k * half, bw = k ? sw - half : half;
         if (on) { rect_fill(&c, bx, y, bw, SHC_SEG_H, MSP_TEAL); }
         else { rect_fill(&c, bx, y, bw, SHC_SEG_H, 0x1c2f36); rect_edge(&c, bx, y, bw, SHC_SEG_H, MSP_TEAL); }
         draw_text(&c, bx + (bw - text_w(lab, UI_TEXT(2))) / 2, y + (SHC_SEG_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), on ? MSP_INK : MSP_QUIET, lab);
     }
     y += SHC_SEG_H + UI(9);
-    const char *note = paused ? "WAITS AS YOU LEFT IT" : "LIVES ON, AS IF ASLEEP";
+    const char *note = paused ? "รออยู่แบบที่คุณทิ้งไว้" : "ยังใช้ชีวิตต่อ เหมือนหลับ";
     draw_text(&c, mx + (SHC_W - text_w(note, UI_TEXT(2))) / 2, y, UI_TEXT(2), MSP_QUIET, note);
     y += SHC_NOTE - UI(9);
     int bw0 = UI(120), bw1 = UI(98), bw2 = UI(74), gap = (SHC_W - UI(32) - bw0 - bw1 - bw2) / 2, bx = mx + UI(16);
     if (g_shc_swap >= 0) swap_button(&c, bx, y, bw0, MSP_CLOSE_H, g_shc_swap);   /* SWAP IN tapped: it answers at once */
-    else lit_button(&c, bx, y, bw0, MSP_CLOSE_H, "SWAP IN");
+    else lit_button(&c, bx, y, bw0, MSP_CLOSE_H, "สลับตู้");
     bx += bw0 + gap;
-    button(&c, bx, y, bw1, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "RENAME", UI_TEXT(2)); bx += bw1 + gap;
-    button(&c, bx, y, bw2, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "MORE", UI_TEXT(2));
+    button(&c, bx, y, bw1, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "เปลี่ยนชื่อ", UI_TEXT(2)); bx += bw1 + gap;
+    button(&c, bx, y, bw2, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "เพิ่มเติม", UI_TEXT(2));
 }
 
 /* MORE on a tank's card: REMOVE (0.3.9.3, art approved by Strato; D5). The card again, its picture and name, and what
@@ -9729,25 +9759,25 @@ void render_shelf_remove(uint16_t *fb, int stride, const shelf_slot_t *s, int re
     sh_tank(&c, mx + UI(16), my + UI(16), SH_TW, SH_IH, s->thumb, true);
     int tx = mx + UI(16) + SH_TW + UI(14), ty = my + UI(18);
     char nm[24]; snprintf(nm, sizeof nm, "%s", s->name); for (char *p = nm; *p; p++) if (*p == '\n') *p = ' ';
-    draw_text(&c, tx, ty, UI_TEXT(2), 0xffffff, "REMOVE"); ty += UI(22);
+    draw_text(&c, tx, ty, UI_TEXT(2), 0xffffff, "นำออก"); ty += UI(22);
     draw_text(&c, tx, ty, UI_TEXT(2), 0xffffff, nm); ty += UI(22);
-    draw_text(&c, tx, ty, UI_TEXT(2), MSP_TEAL, "FROM THE SHELF?");
+    draw_text(&c, tx, ty, UI_TEXT(2), MSP_TEAL, "ออกจากชั้น?");
     int y = my + UI(16) + top + UI(14);
-    const char *l1 = "THIS TANK AND ITS FISH", *l2 = "ARE GONE FOR GOOD.";
+    const char *l1 = "ตู้ใบนี้กับปลาในนั้น", *l2 = "จะหายไปเลย";
     draw_text(&c, mx + (SHC_W - text_w(l1, UI_TEXT(2))) / 2, y, UI_TEXT(2), 0xffffff, l1); y += UI(20);
     draw_text(&c, mx + (SHC_W - text_w(l2, UI_TEXT(2))) / 2, y, UI_TEXT(2), 0xffffff, l2); y += UI(20);
-    char t[32]; snprintf(t, sizeof t, "+%d FOR ITS PIECES", refund);
+    char t[48]; snprintf(t, sizeof t, "+%d จากชิ้นส่วน", refund);
     int w = 16 + UI(6) + text_w(t, UI_TEXT(2)), x = mx + (SHC_W - w) / 2;
     blit_icon(&c, x, y - 1, &icon_shop_sand_dollar_16, 255);
     draw_text(&c, x + 16 + UI(6), y, UI_TEXT(2), MSP_TEAL, t);
     int bmx, bmy, rx, rw; shm_btns(&bmx, &bmy, &y, &rx, &rw);
     const int bw = SHM_BW;
-    button(&c, mx + UI(16), y, bw, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "BACK", UI_TEXT(2));
+    button(&c, mx + UI(16), y, bw, MSP_CLOSE_H, 0x1c2f36, MSP_TEAL, "กลับ", UI_TEXT(2));
     rect_fill(&c, rx, y, rw, MSP_CLOSE_H, 0x1c2f36);
     int fw = (int)(rw * (hold < 0 ? 0 : hold > 1 ? 1 : hold));
     if (fw > 0) rect_fill(&c, rx, y, fw, MSP_CLOSE_H, 0x2f7f8a);   /* the hold, filling (a deep teal: the white words read on both) */
     rect_edge(&c, rx, y, rw, MSP_CLOSE_H, MSP_TEAL);
-    const char *lb = "HOLD TO SELL";   /* (Strato: "hold to sell") */
+    const char *lb = "กดค้างเพื่อขาย";   /* (Strato: "hold to sell") */
     draw_text(&c, rx + (rw - text_w(lb, UI_TEXT(2))) / 2, y + (MSP_CLOSE_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), 0xffffff, lb);
 }
 
@@ -9781,7 +9811,7 @@ void render_loading(uint16_t *fb, int stride, const char *name, float clock, con
     }
     char nm[24]; snprintf(nm, sizeof nm, "%s", name ? name : ""); for (char *p = nm; *p; p++) if (*p == '\n') *p = ' ';
     draw_text(&c, (TANK_W - text_w(nm, UI_TEXT(2))) / 2, cy + R + UI(26), UI_TEXT(2), 0xffffff, nm);
-    if (!line) line = "FILLING THE TANK";
+    if (!line) line = "กำลังเติมตู้";
     draw_text(&c, (TANK_W - text_w(line, UI_TEXT(2))) / 2, cy + R + UI(48), UI_TEXT(2), MSP_TEAL, line);
 }
 
@@ -9790,7 +9820,7 @@ int render_shelf_card_tap(float x, float y) {
     int top = SH_BOX_H > SHC_TOP ? SH_BOX_H : SHC_TOP, h = UI(16) + top + UI(14) + SHC_SEG_H + SHC_NOTE + MSP_CLOSE_H + UI(16);
     int mx = (TANK_W - SHC_W) / 2, my = (TANK_H - h) / 2, s = 6;
     if (x < mx || x >= mx + SHC_W || y < my || y >= my + h) return SHC_TAP_OUTSIDE;
-    int sy = my + UI(16) + top + UI(14), sx = mx + UI(16) + text_w("TIME", UI_TEXT(2)) + UI(14), sw = mx + SHC_W - UI(16) - sx;
+    int sy = my + UI(16) + top + UI(14), sx = mx + UI(16) + text_w("เวลา", UI_TEXT(2)) + UI(14), sw = mx + SHC_W - UI(16) - sx;   /* (the label render_shelf_card draws) */
     if (g_shc_glass) {                                     /* the tank on the glass: RENAME alone */
         int by = sy + SHC_SEG_H + SHC_NOTE, bx = mx + (SHC_W - UI(98)) / 2;
         return y >= by - s && y < by + MSP_CLOSE_H + s && x >= bx - s && x < bx + UI(98) + s ? SHC_TAP_RENAME : SHC_TAP_NONE;
@@ -9819,15 +9849,19 @@ int render_shelf_card_tap(float x, float y) {
 #define SH_LIB_ROW SH_BOX_H
 #endif
 static int sh_wrap(ctx_t *c, int x, int y, int maxw, int pitch, int max_lines, uint32_t rgb, const char *s) {
-    char line[64]; int n = 0, lines = 0, maxc = maxw / 6;
-    if (maxc > 63) maxc = 63;
+    char line[64]; int n = 0, lines = 0, px = 0;      /* (pixels, not letters: the Thai round - a Thai letter is 8 px where a latin one is 6) */
     while (*s && lines < max_lines) {
         const char *w = s; while (*w == ' ') w++;
         const char *e = w; while (*e && *e != ' ') e++;
         int wl = (int)(e - w);
-        if (n && n + 1 + wl > maxc) { line[n] = 0; draw_text(c, x, y, 1, rgb, line); y += pitch; lines++; n = 0; continue; }
-        if (n) line[n++] = ' ';
-        memcpy(line + n, w, (size_t)wl); n += wl; s = e;
+        if (wl > 40) wl = 40;                          /* (a word longer than the row: cut it) */
+        char word[48]; memcpy(word, w, (size_t)wl); word[wl] = 0;
+        int wpx = text_w(word, 1), sp = n ? 6 : 0;
+        if (n && (n + 1 + wl > 60 || px + sp + wpx > maxw)) {
+            line[n] = 0; draw_text(c, x, y, 1, rgb, line); y += pitch; lines++; n = 0; px = 0; continue;
+        }
+        if (n) { line[n++] = ' '; }
+        memcpy(line + n, word, (size_t)wl); n += wl; line[n] = 0; px += sp + wpx; s = e;
     }
     if (n && lines < max_lines) { line[n] = 0; draw_text(c, x, y, 1, rgb, line); lines++; }
     return lines;
@@ -9835,7 +9869,7 @@ static int sh_wrap(ctx_t *c, int x, int y, int maxw, int pitch, int max_lines, u
 void render_library(uint16_t *fb, int stride, const library_row_t *row, int n, int wallet, const char *checked) {
     ctx_t c = ctx_frame(fb, stride);
     rect_fill(&c, 0, 0, TANK_W, TANK_H, MSP_INK);
-    draw_text(&c, (TANK_W - text_w("THE LIBRARY", UI_TEXT(3))) / 2, SH_TITLE_Y, UI_TEXT(3), 0xffffff, "THE LIBRARY");
+    draw_text(&c, (TANK_W - text_w("คลังตู้", UI_TEXT(3))) / 2, SH_TITLE_Y, UI_TEXT(3), 0xffffff, "คลังตู้");
     draw_text(&c, (TANK_W - text_w(checked, 1)) / 2, SH_TITLE_Y + UI(27), 1, MSP_QUIET, checked);
     int x0 = SH_LIB_X0, x1 = TANK_W - SH_LIB_X0, bw = UI(116);
     int y = SH_TITLE_Y + UI(46), pitch = SH_LIB_ROW + UI(22);
@@ -9846,10 +9880,10 @@ void render_library(uint16_t *fb, int stride, const library_row_t *row, int n, i
         draw_text(&c, tx, y + UI(2), UI_TEXT(2), 0xffffff, r->name);
         int ln = sh_wrap(&c, tx, y + UI(24), tw, 11, (SH_LIB_ROW - UI(38)) / 11, MSP_TEAL, r->line);   /* as many lines as the picture is tall */
         int tagy = y + UI(24) + ln * 11 + UI(6);
-        if (r->experimental) { sh_flask(&c, tx, tagy - 1, MSP_QUIET); draw_text(&c, tx + 10, tagy, 1, MSP_QUIET, "EXPERIMENTAL"); }
-        else if (r->installed) draw_text(&c, tx, tagy, 1, MSP_QUIET, "INSTALLED");
+        if (r->experimental) { sh_flask(&c, tx, tagy - 1, MSP_QUIET); draw_text(&c, tx + 10, tagy, 1, MSP_QUIET, "ทดลอง"); }
+        else if (r->installed) draw_text(&c, tx, tagy, 1, MSP_QUIET, "ติดตั้งแล้ว");
         int bx = x1 - bw, by = y + UI(10);
-        const char *act = r->installed ? "NEW TANK" : "GET";
+        const char *act = r->installed ? "ตู้ใหม่" : "รับ";
         if (r->price > wallet) {                           /* not enough yet: an outline with dim words (fill, not hue) */
             rect_edge(&c, bx, by, bw, MSP_CLOSE_H, MSP_DIM);
             draw_text(&c, bx + (bw - text_w(act, UI_TEXT(2))) / 2, by + (MSP_CLOSE_H - 7 * UI_TEXT(2)) / 2, UI_TEXT(2), MSP_DIM, act);
@@ -9859,10 +9893,10 @@ void render_library(uint16_t *fb, int stride, const library_row_t *row, int n, i
             int w = 16 + UI(5) + text_w(t, UI_TEXT(2)), px0 = bx + (bw - w) / 2;
             blit_icon(&c, px0, by + MSP_CLOSE_H + UI(8), &icon_shop_sand_dollar_16, 255);
             draw_text(&c, px0 + 16 + UI(5), by + MSP_CLOSE_H + UI(9), UI_TEXT(2), 0xffffff, t);
-        } else draw_text(&c, bx + (bw - text_w("FREE", UI_TEXT(2))) / 2, by + MSP_CLOSE_H + UI(9), UI_TEXT(2), 0xffffff, "FREE");
+        } else draw_text(&c, bx + (bw - text_w("ฟรี", UI_TEXT(2))) / 2, by + MSP_CLOSE_H + UI(9), UI_TEXT(2), 0xffffff, "ฟรี");
         if (i + 1 < n) rect_fill(&c, x0, y + pitch - UI(11), x1 - x0, 1, MSP_DIM);
     }
-    sh_footer(&c, NULL, true, wallet, "BACK", 1, 1);
+    sh_footer(&c, NULL, true, wallet, "กลับ", 1, 1);
 }
 int render_library_tap(float x, float y, int n) {
     int r = render_shelf_tap(x, y);                        /* the footer is the shelf's: BACK stands where CLOSE does */
